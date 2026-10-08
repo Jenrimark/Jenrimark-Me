@@ -43,11 +43,15 @@ npm run build
 
 ## 目录
 
-- `site/`：公开网站源码与已发布内容。
+- `site/`：公开网站源码、`media/` 正式网页素材与测试。
 - `admin/`：本地中文内容管理界面。
 - `scripts/`：本地服务、静态构建、内容同步。
-- `tests/` 与 `site/tests/`：内容隔离、HTTP、交互数学与控制器测试。
-- `docs/design/`：设计、内容来源与验收记录。
+- `tests/`：HTTP 与服务端测试。
+- `docs/design/`：设计、内容来源、计划与验收记录。
+- `assets/`：正式素材。`photos/` 本人原图；`avatar/` 已冻结人物、方向图与视频；`reference/` 教程 PDF 与成品对照截图。
+- `process/`：过程与实验。`avatar/` 候选图/提示词/评审/生成脚本；`reference/` PDF 抽取与页面渲染；`qa/` 网页验收截图；`tools/` 临时脚本与日志；`research/` 外部资料抓取；`mockups/` 设计草稿。
+- `deliverables/`：交付打包。
+- `dist/`：构建产物，可部署。
 - `.local/`：不纳入 Git 的草稿、凭据和备份。
 
 ## 实现边界

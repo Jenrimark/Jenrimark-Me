@@ -45,6 +45,12 @@ function setupDialogs() {
     const close = event.target.closest('[data-close]'); if (close) document.getElementById(close.dataset.close).close();
   });
   $('#folder-open').addEventListener('click', () => { returnFocus = $('#folder-open'); $('#archive-dialog').showModal(); document.body.classList.add('dialog-open'); });
+  const folderClose = document.getElementById('folder-close');
+  const folderStage = document.getElementById('folder-stage');
+  if (folderClose && folderStage) folderClose.addEventListener('click', () => {
+    folderStage.classList.toggle('is-open');
+    folderClose.textContent = folderStage.classList.contains('is-open') ? '展开文件夹 +' : '收起文件夹 ×';
+  });
   for (const dialog of document.querySelectorAll('dialog')) {
     dialog.addEventListener('click', event => { if (event.target === dialog) { const r = dialog.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close(); } });
     dialog.addEventListener('close', () => {
@@ -74,6 +80,77 @@ function setupStory() {
   });
 }
 
+function setupScrollMotion() {
+  const sections = [...document.querySelectorAll('.motion-section')];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const forceReveal = new URLSearchParams(location.search).has('reveal');
+  sections.forEach(section => {
+    [...section.querySelectorAll('.timeline-item,.project-card,.skill-list>div,.honors article')].forEach((node, index) => node.style.setProperty('--i', index));
+  });
+  const scrollToHash = () => {
+    const goto = new URLSearchParams(location.search).get('goto');
+    const hashId = goto || (location.hash && !location.hash.startsWith('#project/') ? location.hash.slice(1) : '');
+    if (!hashId) return;
+    const target = document.getElementById(hashId);
+    if (!target) return;
+    const jump = () => window.scrollTo(0, Math.max(0, target.getBoundingClientRect().top + window.scrollY - 24));
+    requestAnimationFrame(() => requestAnimationFrame(jump));
+    setTimeout(jump, 280);
+  };
+  if (forceReveal || reduced.matches || !('IntersectionObserver' in window)) {
+    sections.forEach(section => section.classList.add('is-visible'));
+    scrollToHash();
+    return;
+  }
+  // Hide-for-reveal only once the observer can immediately show in-view sections.
+  document.documentElement.classList.add('js');
+  const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+    entry.target.classList.toggle('is-visible', entry.isIntersecting);
+  }), { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+  sections.forEach(section => observer.observe(section));
+  scrollToHash();
+}
+
+function setupIpScrollLayer() {
+  const layer = $('#ip-scroll-layer');
+  if (!layer) return;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const update = () => {
+    const active = innerWidth > 760 && !reduced.matches && scrollY > innerHeight * .72;
+    const progress = Math.max(0, Math.min(1, (scrollY - innerHeight * .72) / Math.max(1, innerHeight * 4.8)));
+    layer.classList.toggle('is-active', active);
+    layer.style.setProperty('--ip-progress', progress.toFixed(3));
+    layer.style.setProperty('--ip-y', `${Math.round(progress * 34)}px`);
+    layer.style.setProperty('--ip-rotate', `${(progress * 4 - 2).toFixed(2)}deg`);
+  };
+  let raf = 0;
+  addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; update(); }); }, { passive: true });
+  addEventListener('resize', update); reduced.addEventListener('change', update); update();
+}
+
+function setupSceneRail() {
+  const scenes = [...document.querySelectorAll('.scene-section')];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  if (!scenes.length) return;
+  const update = () => {
+    for (const scene of scenes) {
+      const rect = scene.getBoundingClientRect();
+      const range = Math.max(1, rect.height - innerHeight * .55);
+      const progress = Math.max(0, Math.min(1, (innerHeight * .62 - rect.top) / range));
+      const phase = progress < .18 ? 'intro' : progress > .82 ? 'outro' : 'main';
+      scene.style.setProperty('--scene-progress', progress.toFixed(3));
+      scene.dataset.scenePhase = phase;
+      scene.classList.toggle('scene-active', progress > 0 && progress < 1);
+    }
+  };
+  let raf = 0;
+  const schedule = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; update(); }); };
+  addEventListener('scroll', schedule, { passive: true });
+  addEventListener('resize', schedule);
+  reduced.addEventListener('change', schedule);
+  update();
+}
+
 function applyProfile() {
   document.title = content.settings?.title || document.title;
   $('meta[name="description"]').content = content.settings?.description || content.profile.intro;
@@ -82,7 +159,10 @@ function applyProfile() {
   $('.name').innerHTML = `${e(content.profile.name)}<span>${e(content.profile.englishName)}</span>`;
   $('.intro-eyebrow').innerHTML = `<span class="small-star" aria-hidden="true">✳</span> ${e(content.profile.positioning)}`;
   $('.location').textContent = `${content.profile.location || ''} / 2026`;
-  $('.about-text p').textContent = content.profile.intro;
+  const aboutParas = document.querySelectorAll('.about-text p');
+  const intro = content.profile.intro || '';
+  if (aboutParas[0]) aboutParas[0].textContent = intro;
+  if (aboutParas[1]) aboutParas[1].textContent = '从小米的 B 端智能运营，到美和易思的多模态面试产品，把想法一步步做成真实体验。';
   for (const a of document.querySelectorAll('a[href^="mailto:"]')) { a.href = `mailto:${encodeURIComponent(content.profile.email)}`; if (!a.classList.contains('contact-link')) a.textContent = `${content.profile.email} ↗`; }
   const copyright = $('.footer>span:last-child'); copyright.textContent = content.settings?.copyright || '';
   $('.footer>span:first-child').textContent = content.profile.brand || 'JENRIMARK';
@@ -101,11 +181,11 @@ async function init() {
     projects = content.projects;
     if (preview) { const banner = document.createElement('div'); banner.className='preview-banner'; banner.textContent='草稿预览 · 尚未发布'; document.body.prepend(banner); }
     applyProfile(); renderTimeline();
-    $('#archive-count').textContent = projects.length;
+    const countEl = $('#archive-count'); if (countEl) countEl.textContent = projects.length;
     $('#project-filters').innerHTML = ['全部',...new Set(projects.map(p=>p.category))].map(c=>`<button type="button" data-category="${e(c)}" aria-pressed="${c==='全部'}">${e(c)}</button>`).join('');
     $('#project-filters').addEventListener('click', event => { const b=event.target.closest('[data-category]'); if(b)renderProjects(b.dataset.category); });
     $('#archive-list').innerHTML = projects.map((p,i)=>`<button type="button" data-project="${e(p.slug)}"><span>${String(i+1).padStart(2,'0')}</span><strong>${e(p.title)}</strong><small>${e(p.category)}</small><b aria-hidden="true">↗</b></button>`).join('');
-    renderProjects(); setupDialogs(); setupStory();
+    renderProjects(); setupDialogs(); setupStory(); setupScrollMotion(); setupIpScrollLayer(); setupSceneRail();
     if(location.hash.startsWith('#project/'))openCase(decodeURIComponent(location.hash.slice(9)));
   } catch (error) { $('#load-error').hidden=false; console.error('Portfolio content:',error); }
 }

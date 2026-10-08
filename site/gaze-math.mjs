@@ -1,7 +1,7 @@
 const TAU = Math.PI * 2;
 const QUARTER = Math.PI / 2;
 const SEAM = Math.PI * 1.75;
-const DIRECTION_TIMES = [2, 3.875, 5.375, 7];
+const DIRECTION_TIMES = [2.5, 5, 7.25, 9];
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const smoothstep = (value) => value * value * (3 - 2 * value);
 const frontPose = () => ({ angle: null, time: 0, strength: 0 });
@@ -22,7 +22,7 @@ export function angleToPose(angle) {
     // The approved clip returns to front after down; it contains no down→right arc.
     // Keep the nearest real pose and conceal its narrow seam with the front poster.
     const seamStrength = smoothstep(clamp(Math.abs(normalized - SEAM) / 0.14, 0, 1));
-    return { time: normalized < SEAM ? 7 : 2, seamStrength };
+    return { time: normalized < SEAM ? DIRECTION_TIMES[3] : 0, seamStrength };
   }
   const segment = Math.floor(normalized / QUARTER);
   const progress = (normalized - segment * QUARTER) / QUARTER;

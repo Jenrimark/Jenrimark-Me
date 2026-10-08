@@ -21,10 +21,10 @@ test('angles wrap without accumulating full revolutions', () => {
 
 test('screen right, up, left and down select the approved video poses', () => {
   for (const [x, y, expectedTime] of [
-    [center.x + 500, center.y, 2],
-    [center.x, center.y - 300, 3.875],
-    [center.x - 500, center.y, 5.375],
-    [center.x, center.y + 300, 7],
+    [center.x + 500, center.y, 2.5],
+    [center.x, center.y - 300, 5],
+    [center.x - 500, center.y, 7.25],
+    [center.x, center.y + 300, 9],
   ]) {
     const pose = pointerToPose(x, y, rect);
     close(pose?.time, expectedTime);
@@ -51,15 +51,15 @@ test('gaze strength grows continuously outside the center dead zone and is bound
 });
 
 test('the three recorded direction transitions interpolate their actual timing', () => {
-  close(angleToPose(PI / 4)?.time, 2.9375);
-  close(angleToPose(PI * 0.75)?.time, 4.625);
-  close(angleToPose(PI * 1.25)?.time, 6.1875);
+  close(angleToPose(PI / 4)?.time, 3.75);
+  close(angleToPose(PI * 0.75)?.time, 6.125);
+  close(angleToPose(PI * 1.25)?.time, 8.125);
 });
 
 test('the missing down-to-right transition never seeks through the left or up pose', () => {
   for (let angle = PI * 1.5; angle < PI * 2; angle += 0.01) {
     const pose = angleToPose(angle);
-    assert.ok(pose?.time === 7 || pose?.time === 2, `invalid seam pose at ${angle}`);
+    assert.ok(pose?.time === 9 || pose?.time === 0, `invalid seam pose at ${angle}`);
     assert.ok(pose?.seamStrength >= 0 && pose?.seamStrength <= 1);
   }
   assert.equal(angleToPose(PI * 1.75)?.seamStrength, 0);
@@ -216,7 +216,7 @@ test('the controller serializes seeks and discards superseded pointer targets', 
   assert.equal(b.video.writes.length, 1, 'only one seek may be in flight');
   b.video.completeSeek();
   b.settle();
-  close(b.video.currentTime, 3.875);
+  close(b.video.currentTime, 5);
   assert.equal(b.hero.dataset.motion, 'tracking');
   assert.equal(b.win.heroDiagnostics?.seekPending, false);
 });
@@ -254,7 +254,7 @@ test('a successful retry clears the failure streak and resumes tracking', () => 
   b.settle();
   assert.equal(b.hero.dataset.motion, 'tracking');
   assert.equal(b.win.heroDiagnostics.seekFailures, 0);
-  close(b.video.currentTime, 2);
+  close(b.video.currentTime, 2.5);
 });
 
 test('a seek that never completes falls back without writing a second seek', () => {
@@ -278,7 +278,7 @@ test('crossing to an opposite pose is hidden until the direct seek completes', (
   b.move(0, 270);
   b.tick(80);
   close(b.win.heroDiagnostics?.strength, 0);
-  assert.deepEqual(b.video.writes.slice(startWrites), [5.375]);
+  assert.deepEqual(b.video.writes.slice(startWrites), [7.25]);
   b.video.completeSeek();
   b.settle();
   close(b.win.heroDiagnostics?.strength, 1);
@@ -365,7 +365,7 @@ test('scrolling returns front and tracking becomes available when the hero retur
   b.move(490, 0);
   b.settle();
   assert.equal(b.hero.dataset.motion, 'tracking');
-  close(b.video.currentTime, 3.875);
+  close(b.video.currentTime, 5);
 });
 
 test('a hidden tab pauses an opted-in loop and does not restart it automatically', async () => {

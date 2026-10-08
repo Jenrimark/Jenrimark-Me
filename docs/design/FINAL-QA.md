@@ -43,4 +43,4 @@
 - 公网案例详情与ESC关闭通过；手机详情正常显示。
 - 公开视频Range返回206，长度4,208,424字节；公开content.json仅8个published项目，无测试草稿。
 - 后台同步命令已实际执行成功，凭据继续仅存在本机。
-- 最终截图保存在本机 site/qa/final-home.png、final-studio.png、public-mobile.png。
+- 最终截图保存在本机 process/qa/final-home.png、final-studio.png、public-mobile.png。

@@ -2,8 +2,8 @@
 dist/
 node_modules/
 site/.vite/
-site/qa/
 tmp/
+process/
 *.log
 .env
 .mimocode/

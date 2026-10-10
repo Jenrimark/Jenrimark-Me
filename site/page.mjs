@@ -5,12 +5,13 @@ document.querySelectorAll('a[href^="#"]').forEach(link=>link.addEventListener('c
 
 const sceneCopy=document.querySelector('#scene-copy');
 const portalDock=document.querySelector('#portal-dock');
+const siteFooter=document.querySelector('.site-footer');
 const scenes=[
-  {id:'about',start:0,end:10,tag:'01',title:'HELLO.',sub:'移动鼠标，目光随你'},
-  {id:'experience',start:10,end:15,tag:'02',title:'DESIGN.',sub:'把低效的动作，拆成可落地的流程'},
-  {id:'projects',start:15,end:22,tag:'03',title:'MAKE IT REAL.',sub:'从问题出发，把方案做成产品'},
-  {id:'work',start:22,end:28,tag:'04',title:'THE WORK.',sub:'每一个项目，都是一次具体的尝试'},
-  {id:'contact',start:28,end:30.048,tag:'05',title:'LET’S TALK.',sub:'下一个好想法，也许从你好开始'},
+  {id:'about',start:0,end:10},
+  {id:'experience',start:10,end:15},
+  {id:'projects',start:15,end:22},
+  {id:'work',start:22,end:28},
+  {id:'contact',start:28,end:30.048},
 ];
 let activeScene='';
 function setSceneByTime(time){
@@ -18,13 +19,16 @@ function setSceneByTime(time){
   if(!next||next.id===activeScene)return;
   activeScene=next.id;
   portalDock?.classList.toggle('is-expanded', next.id==='about'||next.id==='contact');
+  siteFooter?.classList.toggle('is-visible', next.id==='contact');
   document.querySelectorAll('.chapter').forEach(section=>{const active=section.id===next.id;section.classList.toggle('timeline-active',active);section.dataset.timelineState=active?'active':'idle';});
   renderSceneCopy(next);
 }
 function renderSceneCopy(scene){
-  sceneCopy.querySelector('.scene-copy-tag').textContent=scene.tag;
-  sceneCopy.querySelector('h1').textContent=scene.title;
-  sceneCopy.querySelector('p:last-child').textContent=scene.sub;
+  // Each scene owns its own panel. Identity lives only inside the about panel,
+  // so later scenes never render that block at all.
+  sceneCopy.querySelectorAll('.scene-panel').forEach(panel=>{
+    panel.hidden=panel.dataset.scene!==scene.id;
+  });
   sceneCopy.dataset.scene=scene.id;
 }
 document.addEventListener('v4sceneprogress',event=>setSceneByTime(event.detail.time));

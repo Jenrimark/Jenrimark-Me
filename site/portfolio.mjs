@@ -168,7 +168,7 @@ function applyProfile() {
   $('.footer>span:first-child').textContent = content.profile.brand || 'JENRIMARK';
   $('.contact>.overline').textContent = content.settings?.footerLine || 'THE NEXT IDEA STARTS WITH A HELLO.';
   for(const a of document.querySelectorAll('a[href="https://github.com/Jenrimark"]'))a.href=safeURL(content.profile.github)||'https://github.com/Jenrimark';
-  for(const a of document.querySelectorAll('a[href="https://jenrimark.github.io/acad-homepage/"]'))a.href=safeURL(content.profile.resumeUrl)||safeURL(content.source?.url)||'#about';
+  for(const a of document.querySelectorAll('a[href="https://Jenrimark.github.io/acad-homepage/"]'))a.href=safeURL(content.profile.resumeUrl)||safeURL(content.source?.url)||'#about';
 }
 
 async function init() {

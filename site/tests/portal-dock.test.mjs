@@ -7,10 +7,10 @@ const root = new URL('../', import.meta.url);
 test('homepage exposes the six portal destinations as an icon dock', async () => {
   const html = await readFile(new URL('index.html', root), 'utf8');
   const expected = [
-    ['聚合引擎', 'https://jenrimark.github.io/view/'],
+    ['聚合引擎', 'https://Jenrimark.github.io/view/'],
     ['作品集', '#work'],
     ['联系我', '#contact'],
-    ['履历书', 'https://jenrimark.github.io/acad-homepage/'],
+    ['履历书', 'https://Jenrimark.github.io/acad-homepage/'],
     ['知识库', 'https://fcn9od35aepq.feishu.cn/wiki/R1R3wPuzTioFtNkOnELcUJJLnBh?from=from_copylink'],
     ['GitHub', 'https://github.com/Jenrimark'],
   ];
@@ -47,8 +47,18 @@ test('portal dock expands only for the first and final scenes', async () => {
 test('collapsed portal dock stays compact in the upper-right corner', async () => {
   const css = await readFile(new URL('page.css', root), 'utf8');
 
-  assert.match(css, /\.portal-dock:not\(\.is-expanded\)\{gap:4px;width:38px\}/);
+  assert.match(css, /\.portal-dock:not\(\.is-expanded\)\{gap:4px;width:38px(;|\})/);
   assert.match(css, /\.portal-dock:not\(\.is-expanded\) \.portal-link\{[^}]*width:34px;[^}]*min-height:34px/);
-  assert.match(css, /\.portal-dock:not\(\.is-expanded\) \.portal-icon\{width:26px;height:26px;font-size:15px\}/);
+  assert.match(css, /\.portal-dock:not\(\.is-expanded\) \.portal-icon\{width:26px;height:26px;font-size:15px/);
   assert.match(css, /\.portal-dock\{top:96px;/);
+});
+
+test('collapsed hover stretches one sticker leftward to the original strip length', async () => {
+  const css = await readFile(new URL('page.css', root), 'utf8');
+
+  // Hovered strip restores the expanded dock width (116px) but grows left via negative margin.
+  assert.match(css, /\.portal-dock:not\(\.is-expanded\) \.portal-link:hover,[^{]*\.portal-link:focus-visible\{[^}]*width:116px;[^}]*margin-left:-82px/);
+  // Labels reappear while the icon keeps the collapsed 26px size (length restored, size not).
+  assert.match(css, /\.portal-dock:not\(\.is-expanded\) \.portal-link:hover \.portal-icon,[^{]*\.portal-link:focus-visible \.portal-icon\{width:26px;height:26px/);
+  assert.match(css, /\.portal-dock:not\(\.is-expanded\) \.portal-link:hover>span:not\(\.portal-icon\),/);
 });

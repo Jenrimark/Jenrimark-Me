@@ -59,11 +59,9 @@ const boot = () => {
   const root = document.querySelector('#v3-scene');
   const scrollRoot = document.querySelector('#scene-scroll');
   const video = document.querySelector('#v3-scene-video');
-  if (!root || !scrollRoot || !video || !window.gsap || !window.Lenis) return;
+  if (!root || !scrollRoot || !video) return;
 
   const state = { progress:0, inputProgress:0, pointerTime:0, duration:0, scrollTarget:0 };
-  const gsap = window.gsap;
-  const lenis = new Lenis({ lerp:.14, smoothWheel:true, syncTouch:true, autoRaf:false });
   const seekEye=(time)=>{if(video.readyState<1 || !state.duration)return;const target=frameTime(Math.max(0,Math.min(state.duration-.05,time)),state.duration,INTERACTION_FPS);if(!video.seeking&&Math.abs(video.currentTime-target)>1/(INTERACTION_FPS*2))video.currentTime=target;};
   const seekScroll=(time)=>{
     if(video.readyState<1 || !state.duration)return;
@@ -83,9 +81,27 @@ const boot = () => {
     video.requestVideoFrameCallback(onFrame);
   }
   video.addEventListener('seeked',resumeLatestScrollTarget);
-  addEventListener('pointermove',(e)=>{if(state.progress>=EYE_END_PROGRESS || !state.duration)return;const time=mapPointerTime(e.clientX,e.clientY,video.getBoundingClientRect());gsap.to(state,{pointerTime:time,duration:.16,overwrite:true,onUpdate:()=>{if(state.progress<EYE_END_PROGRESS)seek(mapSceneTime(state))}})},{passive:true});
+
+  const readScrollProgress=()=>Math.min(1,Math.max(0,(scrollY||0)/Math.max(1,scrollRoot.offsetHeight-innerHeight)));
+  const readPointerTime=(e)=>mapPointerTime(e.clientX,e.clientY,video.getBoundingClientRect());
+
+  if (!window.gsap || !window.Lenis) {
+    // CDN blocked or still loading: keep the scrollytelling alive on native scroll.
+    addEventListener('pointermove',(e)=>{if(state.progress>=EYE_END_PROGRESS || !state.duration)return;state.pointerTime=readPointerTime(e);if(state.progress<EYE_END_PROGRESS)seek(mapSceneTime(state))},{passive:true});
+    addEventListener('scroll',()=>{state.inputProgress=readScrollProgress()},{passive:true});
+    const fallbackTick=()=>{render();requestAnimationFrame(fallbackTick)};
+    state.inputProgress=readScrollProgress();
+    root.classList.add('is-active');
+    video.load();
+    requestAnimationFrame(fallbackTick);
+    return;
+  }
+
+  const gsap = window.gsap;
+  const lenis = new Lenis({ lerp:.14, smoothWheel:true, syncTouch:true, autoRaf:false });
+  addEventListener('pointermove',(e)=>{if(state.progress>=EYE_END_PROGRESS || !state.duration)return;const time=readPointerTime(e);gsap.to(state,{pointerTime:time,duration:.16,overwrite:true,onUpdate:()=>{if(state.progress<EYE_END_PROGRESS)seek(mapSceneTime(state))}})},{passive:true});
   const scrollTrigger=window.ScrollTrigger?.create({trigger:scrollRoot,start:'top top',end:'bottom bottom',onUpdate:self=>{state.inputProgress=self.progress}});
-  const tick=(time)=>{lenis.raf(time*1000);if(!scrollTrigger)state.inputProgress=Math.min(1,Math.max(0,lenis.scroll/Math.max(1,scrollRoot.offsetHeight-innerHeight)));render()};
+  const tick=(time)=>{lenis.raf(time*1000);if(!scrollTrigger)state.inputProgress=readScrollProgress();render()};
   if(window.ScrollTrigger)window.ScrollTrigger.refresh();
   gsap.ticker.add(tick);gsap.ticker.lagSmoothing(500,33);gsap.set(root,{autoAlpha:1});root.classList.add('is-active');video.load();
 };

@@ -1,17 +1,56 @@
-.local/
-dist/
+# 系统与编辑器文件
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# 依赖与工具缓存
 node_modules/
-site/.vite/
-tmp/
-process/
-*.log
-.env
 .mimocode/
+.cache/
+.temp/
+tmp/
+temp/
+
+# 本地运行状态与敏感信息
+.local/
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.secret
+
+# 构建、预览与发布产物
+dist/
+site/.vite/
+release/
+*.pid
+*.log
+
+# 设计文档、过程资料与素材归档
+# 这些内容不属于网站运行时代码，避免大文件进入 Git
+docs/
 assets/
-*.jpg
-*.png
-*.pdf
+过程资料/
+
+# 临时压缩包与导出文件
 *.zip
-!site/media/**
+*.7z
+*.rar
+*.tar
+*.gz
+
+# 用户上传内容：保留目录占位文件，不提交实际上传图片
 site/media/uploads/*
 !site/media/uploads/.gitkeep
+
+# 测试与本地预览产生的临时文件
+site/**/.playwright/
+site/**/screenshots/
+site/**/coverage/
+*.stderr.log
+*.stdout.log

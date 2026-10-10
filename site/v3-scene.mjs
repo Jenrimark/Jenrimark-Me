@@ -4,6 +4,7 @@ export const EYE_END_PROGRESS = 0.14;
 export const EYE_DURATION = 10;
 export const INTERACTION_FPS = 60;
 export const SCROLL_SEEK_EPSILON = 0.012;
+export const SCROLL_SMOOTH_FACTOR = 0.22;
 export const SCROLL_TIMELINE = Object.freeze([
   [0, 10],
   [0.08, 14],
@@ -37,6 +38,12 @@ export function needsScrollSeek({ currentTime, targetTime, seeking }) {
   return !seeking && Math.abs(currentTime - targetTime) > SCROLL_SEEK_EPSILON;
 }
 
+export function smoothProgress(current, target, factor = SCROLL_SMOOTH_FACTOR) {
+  const safeFactor = Math.max(0, Math.min(1, factor));
+  const next = current + (target - current) * safeFactor;
+  return Math.abs(target - next) < 0.0003 ? target : next;
+}
+
 export function mapPointerTime(clientX, clientY, rect) {
   const pose = pointerToPose(clientX, clientY, rect);
   return Math.max(0, Math.min(EYE_DURATION, pose.time));
@@ -54,7 +61,7 @@ const boot = () => {
   const video = document.querySelector('#v3-scene-video');
   if (!root || !scrollRoot || !video || !window.gsap || !window.Lenis) return;
 
-  const state = { progress:0, pointerTime:0, duration:0, scrollTarget:0 };
+  const state = { progress:0, inputProgress:0, pointerTime:0, duration:0, scrollTarget:0 };
   const gsap = window.gsap;
   const lenis = new Lenis({ lerp:.14, smoothWheel:true, syncTouch:true, autoRaf:false });
   const seekEye=(time)=>{if(video.readyState<1 || !state.duration)return;const target=frameTime(Math.max(0,Math.min(state.duration-.05,time)),state.duration,INTERACTION_FPS);if(!video.seeking&&Math.abs(video.currentTime-target)>1/(INTERACTION_FPS*2))video.currentTime=target;};
@@ -65,7 +72,7 @@ const boot = () => {
     if(needsScrollSeek({currentTime:video.currentTime,targetTime:target,seeking:video.seeking}))video.currentTime=target;
   };
   const seek=(time)=>state.progress<EYE_END_PROGRESS?seekEye(time):seekScroll(time);
-  const render=()=>{const p=Math.min(1,Math.max(0,lenis.scroll/Math.max(1,scrollRoot.offsetHeight-innerHeight)));state.progress=p;seek(mapSceneTime(state));root.dataset.state=p<EYE_END_PROGRESS?'eye':'scroll';};
+  const render=()=>{state.progress=smoothProgress(state.progress,state.inputProgress);const time=mapSceneTime(state);seek(time);root.dataset.state=state.progress<EYE_END_PROGRESS?'eye':'scroll';document.dispatchEvent(new CustomEvent('v4sceneprogress',{detail:{progress:state.progress,time,duration:state.duration}}));};
   video.addEventListener('loadedmetadata',()=>{state.duration=video.duration||0;seek(mapSceneTime(state))},{once:true});
   const resumeLatestScrollTarget=()=>{
     if(state.progress<EYE_END_PROGRESS || !state.duration || video.seeking)return;
@@ -77,6 +84,9 @@ const boot = () => {
   }
   video.addEventListener('seeked',resumeLatestScrollTarget);
   addEventListener('pointermove',(e)=>{if(state.progress>=EYE_END_PROGRESS || !state.duration)return;const time=mapPointerTime(e.clientX,e.clientY,video.getBoundingClientRect());gsap.to(state,{pointerTime:time,duration:.16,overwrite:true,onUpdate:()=>{if(state.progress<EYE_END_PROGRESS)seek(mapSceneTime(state))}})},{passive:true});
-  const tick=(t)=>{lenis.raf(t*1000);render();requestAnimationFrame(tick)};gsap.set(root,{autoAlpha:1});root.classList.add('is-active');video.load();requestAnimationFrame(tick);
+  const scrollTrigger=window.ScrollTrigger?.create({trigger:scrollRoot,start:'top top',end:'bottom bottom',onUpdate:self=>{state.inputProgress=self.progress}});
+  const tick=(time)=>{lenis.raf(time*1000);if(!scrollTrigger)state.inputProgress=Math.min(1,Math.max(0,lenis.scroll/Math.max(1,scrollRoot.offsetHeight-innerHeight)));render()};
+  if(window.ScrollTrigger)window.ScrollTrigger.refresh();
+  gsap.ticker.add(tick);gsap.ticker.lagSmoothing(500,33);gsap.set(root,{autoAlpha:1});root.classList.add('is-active');video.load();
 };
 if(typeof document!=='undefined'){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();}

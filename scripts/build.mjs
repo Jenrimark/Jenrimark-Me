@@ -10,7 +10,7 @@ export async function build(root = ROOT) {
   await mkdir(out,{recursive:true});
   // Only recreate the explicitly named generated directory.
   for(const item of await readdir(out))await rm(join(out,item),{recursive:true,force:true});
-  for(const name of ['index.html','styles.css','portfolio.css','v3-scene.css','gaze.mjs','gaze-math.mjs','portfolio.mjs','content-model.mjs','v3-scene.mjs'])await cp(join(site,name),join(out,name));
+  for(const name of ['index.html','styles.css','portfolio.css','page.css','v3-scene.css','gaze.mjs','gaze-math.mjs','portfolio.mjs','content-model.mjs','v3-scene.mjs','page.mjs'])await cp(join(site,name),join(out,name));
   await mkdir(join(out,'media/uploads'),{recursive:true});
   for(const name of ['hero-poster.png','hero-seek.mp4','ip-scroll-keyframe.png','ip-about.png','ip-journey.png','ip-story.png','ip-work.png','ip-contact.png'])await cp(join(site,'media',name),join(out,'media',name));
   await cp(join(site,'media/formal-v4.mp4'),join(out,'media/formal-v4.mp4'));

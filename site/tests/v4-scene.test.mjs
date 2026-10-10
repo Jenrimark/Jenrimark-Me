@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mapSceneTime, mapPointerTime, mapScrollTime, INTERACTION_FPS, needsScrollSeek } from '../v3-scene.mjs';
+import { mapSceneTime, mapPointerTime, mapScrollTime, INTERACTION_FPS, needsScrollSeek, smoothProgress } from '../v3-scene.mjs';
 
 test('eye interaction uses a 60Hz control grid', () => {
   assert.equal(INTERACTION_FPS, 60);
@@ -50,4 +50,11 @@ test('scroll seeks coalesce while decoding and resume for the latest target', ()
   assert.equal(needsScrollSeek({ currentTime: 18, targetTime: 22, seeking: true }), false);
   assert.equal(needsScrollSeek({ currentTime: 18, targetTime: 22, seeking: false }), true);
   assert.equal(needsScrollSeek({ currentTime: 21.995, targetTime: 22, seeking: false }), false);
+});
+
+test('scroll progress eases toward the latest target without overshooting', () => {
+  assert.equal(smoothProgress(0, 1, 0.22), 0.22);
+  assert.ok(smoothProgress(0.99, 1, 0.22) > 0.99 && smoothProgress(0.99, 1, 0.22) < 1);
+  assert.ok(smoothProgress(0.8, 0.2, 0.22) < 0.8);
+  assert.ok(smoothProgress(0.2, 0.8, 2) <= 0.8);
 });

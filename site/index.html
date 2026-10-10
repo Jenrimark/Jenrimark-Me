@@ -1,22 +1,23 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#2c2522">
-  <title>Jenrimark · V4 Scene</title>
-  <link rel="stylesheet" href="v3-scene.css?v=20261008a">
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js" defer></script>
-  <script type="module" src="v3-scene.mjs"></script>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2c2522"><title>Jenrimark · AI Product & Full-Stack</title>
+  <link rel="stylesheet" href="v3-scene.css?v=20261009a"><link rel="stylesheet" href="page.css?v=20261009a">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js" defer></script>
+  <script type="module" src="v3-scene.mjs"></script><script type="module" src="page.mjs"></script>
 </head>
 <body>
-  <main id="scene-scroll" class="scene-scroll" aria-label="场景动画">
-    <div id="v3-scene" class="v3-scene">
-      <div class="v3-scene-frame">
-        <video id="v3-scene-video" class="v3-scene-video" src="media/formal-v4.mp4" muted playsinline preload="auto" tabindex="-1"></video>
-      </div>
-    </div>
-  </main>
-</body>
-</html>
+<main id="scene-scroll" class="site-shell">
+  <div id="v3-scene" class="v3-scene" aria-hidden="true"><div class="v3-scene-frame"><video id="v3-scene-video" class="v3-scene-video" src="media/formal-v4.mp4" poster="media/hero-poster.png" muted playsinline preload="auto" tabindex="-1"></video></div></div>
+  <header class="site-header"><a class="brand" href="#about">jenrimark<span>殇璃</span></a><nav aria-label="页面导航"><a href="#about">01 <b>About Me</b></a><a href="#experience">02 <b>实习履历</b></a><a href="#projects">03 <b>项目经历</b></a><a href="#work">04 <b>作品集</b></a><a href="#contact">05 <b>联系我</b></a></nav><a class="header-mail" href="mailto:2303532728@qq.com">聊聊想法 ↗</a></header>
+  <div id="scene-copy" class="scene-copy" aria-live="polite"><p class="scene-copy-tag">01</p><h1>HELLO.</h1><p>移动鼠标，目光随你</p></div>
+  <div class="page-content scene-spacers" aria-hidden="true">
+    <div id="about" class="scene-spacer"></div>
+    <div id="experience" class="scene-spacer"></div>
+    <div id="projects" class="scene-spacer"></div>
+    <div id="work" class="scene-spacer"></div>
+    <div id="contact" class="scene-spacer"></div>
+  </div>
+</main>
+</body></html>

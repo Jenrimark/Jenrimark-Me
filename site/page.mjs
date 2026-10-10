@@ -4,6 +4,7 @@ const navObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(e
 document.querySelectorAll('a[href^="#"]').forEach(link=>link.addEventListener('click',event=>{const target=document.querySelector(link.getAttribute('href'));if(!target)return;event.preventDefault();target.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});history.replaceState(null,'',link.getAttribute('href'))}));
 
 const sceneCopy=document.querySelector('#scene-copy');
+const portalDock=document.querySelector('#portal-dock');
 const scenes=[
   {id:'about',start:0,end:10,tag:'01',title:'HELLO.',sub:'移动鼠标，目光随你'},
   {id:'experience',start:10,end:15,tag:'02',title:'DESIGN.',sub:'把低效的动作，拆成可落地的流程'},
@@ -16,6 +17,7 @@ function setSceneByTime(time){
   const next=scenes.find(item=>time>=item.start&&time<item.end)||scenes.at(-1);
   if(!next||next.id===activeScene)return;
   activeScene=next.id;
+  portalDock?.classList.toggle('is-expanded', next.id==='about'||next.id==='contact');
   document.querySelectorAll('.chapter').forEach(section=>{const active=section.id===next.id;section.classList.toggle('timeline-active',active);section.dataset.timelineState=active?'active':'idle';});
   renderSceneCopy(next);
 }

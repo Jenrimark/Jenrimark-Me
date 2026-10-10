@@ -67,15 +67,8 @@ D:/DIY/
 │  ├─ v3-scene.mjs           V3 场景播放器：鼠标模式 + 滚动模式切换
 │  ├─ v3-scene.css           V3 场景播放器样式
 │  ├─ media/                 正式网页素材（构建时原样拷贝）
-│  │  ├─ formal-v4.mp4           全流程主视频（滚动叙事用）
-│  │  ├─ hero-seek.mp4           首屏追视视频（可精确定位帧）
-│  │  ├─ hero-poster.png         首屏海报帧（视频不可用时的静态回退）
-│  │  ├─ ip-about.png            人物在「关于」场景的插画
-│  │  ├─ ip-contact.png          人物在「联系」场景的插画
-│  │  ├─ ip-journey.png          人物在「履历」场景的插画
-│  │  ├─ ip-story.png            人物在「故事」场景的插画
-│  │  ├─ ip-work.png             人物在「作品」场景的插画
-│  │  ├─ ip-scroll-keyframe.png  滚动叙事关键帧
+│  │  ├─ formal-v4.mp4           首屏追视与全流程滚动叙事共用视频
+│  │  ├─ hero-poster.png         视频未加载时的静态封面
 │  │  └─ uploads/                后台上传的封面图（.gitkeep 占位）
 │  └─ tests/                 站点单元测试
 │     ├─ content.test.mjs        内容模型：草稿隔离、字段校验、转义

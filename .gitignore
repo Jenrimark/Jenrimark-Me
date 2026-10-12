@@ -31,8 +31,7 @@ release/
 *.pid
 *.log
 
-# 设计文档、过程资料与素材归档
-# 这些内容不属于网站运行时代码，避免大文件进入 Git
+# 设计文档、过程资料与素材归档（整目录不进 Git）
 docs/
 assets/
 过程资料/
@@ -44,13 +43,16 @@ assets/
 *.tar
 *.gz
 
-# 用户上传内容：保留目录占位文件，不提交实际上传图片
-site/media/uploads/*
-!site/media/uploads/.gitkeep
-
 # 测试与本地预览产生的临时文件
 site/**/.playwright/
 site/**/screenshots/
 site/**/coverage/
 *.stderr.log
 *.stdout.log
+
+# monorepo 运行时
+.pnpm-store/
+apps/web/.next/
+server/bin/
+server/data/
+*.exe

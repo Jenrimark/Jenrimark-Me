@@ -1,0 +1,27 @@
+# Local / single-node compose (Phase 2–3 shape)
+services:
+  api:
+    build:
+      context: ../server
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      DATA_DIR: /data
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      ADMIN_USER: ${ADMIN_USER:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      CONTENT_JSON: /data/content.published.json
+    volumes:
+      - ./data:/data
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      API_ORIGIN: http://api:8080
+    depends_on:
+      - api

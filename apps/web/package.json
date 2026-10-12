@@ -1,0 +1,28 @@
+{
+  "name": "@jenrimark/web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "next lint",
+    "test": "node --test --experimental-strip-types ../../packages/scene/src/__tests__/*.test.ts"
+  },
+  "dependencies": {
+    "@jenrimark/content": "workspace:*",
+    "@jenrimark/scene": "workspace:*",
+    "gsap": "^3.13.0",
+    "lenis": "^1.3.4",
+    "next": "^15.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "typescript": "^5.8.0"
+  }
+}

@@ -111,6 +111,10 @@ export default function ScenePlayer() {
 
     let gsapInstance: typeof import('gsap').gsap | null = null;
     let lenisInstance: import('lenis').default | null = null;
+    const stopLenis = () => lenisInstance?.stop();
+    const startLenis = () => lenisInstance?.start();
+    window.addEventListener('portfolio:modal-open', stopLenis);
+    window.addEventListener('portfolio:modal-close', startLenis);
     let scrollTriggerInstance: { progress: number } | null = null;
     let tickFn: ((time: number) => void) | null = null;
     let fallbackRaf = 0;
@@ -205,6 +209,8 @@ export default function ScenePlayer() {
       removeEventListener('scroll', onScroll);
       if (fallbackRaf) cancelAnimationFrame(fallbackRaf);
       if (tickFn && gsapInstance) gsapInstance.ticker.remove(tickFn);
+      window.removeEventListener('portfolio:modal-open', stopLenis);
+      window.removeEventListener('portfolio:modal-close', startLenis);
       lenisInstance?.destroy();
       void rafId;
     };

@@ -56,3 +56,6 @@ apps/web/.next/
 server/bin/
 server/data/
 *.exe
+
+.playwright-cli/
+*.tsbuildinfo

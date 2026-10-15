@@ -8,13 +8,35 @@
     "name": "吴汉东",
     "englishName": "Jenrick Wu",
     "brand": "Jenrimark 殇璃",
-    "positioning": "AI 产品与全栈开发",
+    "positioning": "AI agent · 产品经理 · 全栈开发",
     "location": "武汉",
     "email": "2303532728@qq.com",
     "github": "https://github.com/Jenrimark",
     "intro": "中国地质大学（武汉）软件工程在读，专注 AI 产品与全栈开发。把业务问题拆成可落地的方案，再用代码做出来。",
     "resumeUrl": "https://Jenrimark.github.io/acad-homepage/"
   },
+  "friends": [
+    {
+      "name": "阮一峰的网络日志",
+      "url": "https://www.ruanyifeng.com/blog/",
+      "description": "科技随笔与周刊"
+    },
+    {
+      "name": "张鑫旭的个人主页",
+      "url": "https://www.zhangxinxu.com/",
+      "description": "前端与 CSS 实践"
+    },
+    {
+      "name": "少数派",
+      "url": "https://sspai.com/",
+      "description": "数字生活与效率工具"
+    },
+    {
+      "name": "Ant Design",
+      "url": "https://ant.design/",
+      "description": "企业级 UI 设计体系"
+    }
+  ],
   "education": [
     {
       "school": "中国地质大学（武汉）",
@@ -428,5 +450,13 @@
       "organization": "软件工程 2301 班",
       "description": "搭建师生沟通桥梁，统筹班级事务、学风建设与主题班会。"
     }
-  ]
+  ],
+  "homeSlots": {
+    "featured_1": "greenhouse-ai",
+    "featured_2": "sugarguard",
+    "mini_1": "startrail",
+    "mini_2": "vehicle-diagnostics",
+    "mini_3": "lingxi",
+    "mini_4": "roommate"
+  }
 }

@@ -1,6 +1,7 @@
 @import '../styles/v3-scene.css';
 @import '../styles/page.css';
 @import '../styles/styles.css';
+@import '../styles/admin.css';
 
 html {
   scroll-behavior: auto;

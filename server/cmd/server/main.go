@@ -46,7 +46,11 @@ func main() {
 	}
 
 	srv := httpapi.New(cfg, st, auth.New(cfg.JWTSecret))
-	addr := "127.0.0.1:" + cfg.Port
+	host := os.Getenv("HOST")
+	if host == "" {
+		host = "127.0.0.1"
+	}
+	addr := host + ":" + cfg.Port
 	log.Printf("Jenrimark API listening on http://%s", addr)
 	log.Printf("health: http://%s/healthz", addr)
 	if err := http.ListenAndServe(addr, srv.Router()); err != nil {

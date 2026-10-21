@@ -1,6 +1,7 @@
 FROM node:22-alpine AS build
 WORKDIR /repo
 RUN corepack enable
+ENV npm_config_registry=https://registry.npmmirror.com
 ARG API_ORIGIN
 ENV API_ORIGIN=${API_ORIGIN}
 COPY pnpm-workspace.yaml package.json ./

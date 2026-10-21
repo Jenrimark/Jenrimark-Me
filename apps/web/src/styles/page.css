@@ -97,9 +97,11 @@ body.modal-open{overflow:hidden}.content-modal-backdrop{position:fixed;z-index:5
 .scene-copy[data-scene="experience"],
 .scene-copy[data-scene="projects"]{top:108px;transform:none;left:7vw;width:min(620px,88vw);height:auto;max-height:calc(100svh - 140px);overflow:hidden}
 .scene-copy[data-scene="experience"] h1,
-.scene-copy[data-scene="projects"] h1{font-size:clamp(2.4rem,5.2vw,3.85rem)}
+.scene-copy[data-scene="projects"] h1,
+.scene-copy[data-scene="work"] h1{font-size:clamp(2.4rem,5.2vw,3.85rem)}
 .scene-copy[data-scene="experience"] .scene-copy-sub,
-.scene-copy[data-scene="projects"] .scene-copy-sub{margin-top:.75rem;font-size:1.05rem}
+.scene-copy[data-scene="projects"] .scene-copy-sub,
+.scene-copy[data-scene="work"] .scene-copy-sub{margin-top:.75rem;font-size:1.05rem}
 .scene-record,.scene-jobs{margin-top:1.55rem;display:grid;gap:22px;text-shadow:0 2px 18px rgba(0,0,0,.35)}
 .scene-record{grid-template-columns:auto 1fr;gap:0 22px;align-items:start;padding-top:16px;border-top:1px solid rgba(224,184,110,.55)}
 .scene-jobs{gap:0}
@@ -136,7 +138,7 @@ body.modal-open{overflow:hidden}.content-modal-backdrop{position:fixed;z-index:5
 .scene-copy[data-scene="experience"] .scene-record-tags span:first-child{color:#d7e4b4}
 @media(max-width:560px){
   .scene-copy[data-scene="experience"],.scene-copy[data-scene="projects"]{left:6%;width:88vw;top:96px;max-height:calc(100svh - 120px)}
-  .scene-copy[data-scene="experience"] h1,.scene-copy[data-scene="projects"] h1{font-size:clamp(2.15rem,11vw,3rem)}
+  .scene-copy[data-scene="experience"] h1,.scene-copy[data-scene="projects"] h1,.scene-copy[data-scene="work"] h1{font-size:clamp(2.15rem,11vw,3rem)}
   .scene-record,.scene-job{gap:0 14px}
   .scene-record-index,.scene-job-index{font-size:24px;min-width:1.35em}
   .scene-record-title{font-size:1.25rem}

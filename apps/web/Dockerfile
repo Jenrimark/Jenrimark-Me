@@ -1,6 +1,8 @@
 FROM node:22-alpine AS build
 WORKDIR /repo
 RUN corepack enable
+ARG API_ORIGIN
+ENV API_ORIGIN=${API_ORIGIN}
 COPY pnpm-workspace.yaml package.json ./
 COPY apps/web/package.json apps/web/
 COPY packages/scene/package.json packages/scene/

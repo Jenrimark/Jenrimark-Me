@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   transpilePackages: ['@jenrimark/scene', '@jenrimark/content'],
   images: { unoptimized: true },
   async rewrites() {

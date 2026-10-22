@@ -5,12 +5,10 @@ import {
   EYE_DURATION,
   EYE_END_PROGRESS,
   INTERACTION_FPS,
-  SCROLL_SMOOTH_FACTOR,
   frameTime,
   mapPointerTime,
   mapSceneTime,
   needsScrollSeek,
-  smoothProgress,
 } from '@jenrimark/scene';
 
 type SceneProgressDetail = {
@@ -65,7 +63,8 @@ export default function ScenePlayer() {
       state.progress < EYE_END_PROGRESS ? seekEye(time) : seekScroll(time);
 
     const render = () => {
-      state.progress = smoothProgress(state.progress, state.inputProgress, SCROLL_SMOOTH_FACTOR);
+      // A3: 删除自研指数平滑层，进度直通，只保留 Lenis 单层平滑
+      state.progress = state.inputProgress;
       const time = mapSceneTime(state);
       seek(time);
       root.dataset.state = state.progress < EYE_END_PROGRESS ? 'eye' : 'scroll';
@@ -155,7 +154,8 @@ export default function ScenePlayer() {
           gsap.registerPlugin(ScrollTrigger);
           gsapInstance = gsap;
 
-          lenisInstance = new Lenis({ lerp: 0.14, smoothWheel: true, syncTouch: true, autoRaf: false });
+          // A1: 桌面 wheel 单层插值；syncTouch:false 把触屏交还给系统原生惯性
+          lenisInstance = new Lenis({ lerp: 0.08, smoothWheel: true, syncTouch: false, autoRaf: false });
           scrollTriggerInstance = ScrollTrigger.create({
             trigger: scrollRoot,
             start: 'top top',
@@ -171,7 +171,8 @@ export default function ScenePlayer() {
             render();
           };
           gsap.ticker.add(tickFn);
-          gsap.ticker.lagSmoothing(500, 33);
+          // A2: 按 Lenis 官方 GSAP 集成要求清零 lagSmoothing，排除 GSAP 侧叠加延迟
+          gsap.ticker.lagSmoothing(0);
           gsap.set(root, { autoAlpha: 1 });
           ScrollTrigger.refresh();
         } catch {
@@ -185,11 +186,12 @@ export default function ScenePlayer() {
           fallbackRaf = requestAnimationFrame(fallbackTick);
         };
         state.inputProgress = readScrollProgress();
+        // A4: 仅降级分支（无 ScrollTrigger）才挂被动 scroll 监听；主路径由 ScrollTrigger onUpdate 单一写进度
+        addEventListener('scroll', onScroll, { passive: true });
         fallbackRaf = requestAnimationFrame(fallbackTick);
       }
 
       addEventListener('pointermove', onPointer, { passive: true });
-      addEventListener('scroll', onScroll, { passive: true });
 
       root.classList.add('is-active');
       setActive(true);

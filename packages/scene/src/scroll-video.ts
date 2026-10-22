@@ -4,7 +4,6 @@ export const EYE_END_PROGRESS = 0.14;
 export const EYE_DURATION = 10;
 export const INTERACTION_FPS = 60;
 export const SCROLL_SEEK_EPSILON = 0.012;
-export const SCROLL_SMOOTH_FACTOR = 0.22;
 
 export const SCROLL_TIMELINE: ReadonlyArray<readonly [number, number]> = Object.freeze([
   [0, 10],
@@ -41,12 +40,6 @@ export function needsScrollSeek(input: {
   seeking: boolean;
 }): boolean {
   return !input.seeking && Math.abs(input.currentTime - input.targetTime) > SCROLL_SEEK_EPSILON;
-}
-
-export function smoothProgress(current: number, target: number, factor = SCROLL_SMOOTH_FACTOR): number {
-  const safeFactor = Math.max(0, Math.min(1, factor));
-  const next = current + (target - current) * safeFactor;
-  return Math.abs(target - next) < 0.0003 ? target : next;
 }
 
 export function mapPointerTime(clientX: number, clientY: number, rect: RectLike | DOMRect): number {

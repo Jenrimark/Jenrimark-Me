@@ -63,12 +63,12 @@ function meterPercent(progress: number): number {
 
 export default function HomeExperience({ content, trackMetrics = true }: { content: HomeViewModel; trackMetrics?: boolean }) {
   const [activeScene, setActiveScene] = useState('about');
-  const [meter, setMeter] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [resumeOpen, setResumeOpen] = useState(false);
   const [friendsOpen, setFriendsOpen] = useState(false);
   const friendsRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<SVGCircleElement>(null);
+  const meterValueRef = useRef<HTMLSpanElement>(null);
   const featuredProjects = content.featuredProjects.length ? content.featuredProjects : content.projects.slice(0, 2);
   const miniProjects = content.miniProjects.length ? content.miniProjects : content.projects.slice(2, 6);
   const education = content.education[0];
@@ -134,17 +134,19 @@ export default function HomeExperience({ content, trackMetrics = true }: { conte
       const root = (document.querySelector('#scene-scroll') || document.documentElement) as HTMLElement;
       const value = typeof progress === 'number' ? progress : Math.max(0, Math.min(1, scrollY / Math.max(1, root.offsetHeight - innerHeight)));
       const nextMeter = meterPercent(value);
-      setMeter(nextMeter);
+      // A5: 逐帧进度直写 DOM，不进 state，避免每帧 reconcile 重渲染
       if (ringRef.current) ringRef.current.style.strokeDashoffset = `${RING_C * (1 - nextMeter / 100)}`;
+      if (meterValueRef.current) {
+        meterValueRef.current.textContent = String(nextMeter);
+        meterValueRef.current.parentElement?.setAttribute('aria-label', `页面滚动进度 ${nextMeter}`);
+      }
     };
     const progressHandler = (event: Event) => {
       const detail = (event as CustomEvent<{ progress: number; time: number }>).detail;
       applyScene(SCENES.find((scene) => detail.time >= scene.start && detail.time < scene.end)?.id || 'contact');
       update(detail.progress);
     };
-    const onScroll = () => update();
     document.addEventListener('v4sceneprogress', progressHandler);
-    addEventListener('scroll', onScroll, { passive: true });
     if (trackMetrics) void fetch('/api/public/metrics/page-view', { method: 'POST' }).catch(() => undefined);
     if (ringRef.current) { ringRef.current.style.strokeDasharray = `${RING_C}`; ringRef.current.style.strokeDashoffset = `${RING_C}`; }
     update(0);
@@ -152,7 +154,6 @@ export default function HomeExperience({ content, trackMetrics = true }: { conte
       observer.disconnect();
       anchors.forEach((anchor) => anchor.removeEventListener('click', anchorHandler));
       document.removeEventListener('v4sceneprogress', progressHandler);
-      removeEventListener('scroll', onScroll);
     };
   }, [trackMetrics]);
 
@@ -172,7 +173,7 @@ export default function HomeExperience({ content, trackMetrics = true }: { conte
     <header className="site-header">
       <a className="brand" href="#about" aria-label="Jenrimark 尚礼"><img src="/icons/brand-signature.svg" alt="Jenrimark 尚礼" width="1690" height="415" /></a>
       <nav aria-label="页面导航"><a href="#about">01 <b>初次见面</b></a><a href="#experience">02 <b>学履</b></a><a href="#projects">03 <b>工作</b></a><a href="#work">04 <b>作品集</b></a><a href="#contact">05 <b>认识一下</b></a></nav>
-      <div className="header-actions"><div className="header-scroll-meter" id="scroll-meter" role="img" aria-label={`页面滚动进度 ${meter}`}><svg className="header-scroll-ring" viewBox="0 0 36 36" aria-hidden="true"><circle className="header-scroll-ring-track" cx="18" cy="18" r="15.5" /><circle className="header-scroll-ring-fill" cx="18" cy="18" r="15.5" ref={ringRef} /></svg><span className="header-scroll-value">{meter}</span></div></div>
+      <div className="header-actions"><div className="header-scroll-meter" id="scroll-meter" role="img" aria-label="页面滚动进度"><svg className="header-scroll-ring" viewBox="0 0 36 36" aria-hidden="true"><circle className="header-scroll-ring-track" cx="18" cy="18" r="15.5" /><circle className="header-scroll-ring-fill" cx="18" cy="18" r="15.5" ref={ringRef} /></svg><span className="header-scroll-value" ref={meterValueRef}>0</span></div></div>
     </header>
     <nav id="portal-dock" className="portal-dock" aria-label="个人门户"><p className="portal-dock-title">MY LITTLE PORTALS <span>↘</span></p><a className="portal-link portal-link-search" href="https://view.jenrimark.cn" target="_blank" rel="noreferrer"><span className="portal-icon">⌕</span><span>聚合引擎</span><small>探索</small></a><a className="portal-link portal-link-work" href="#work"><span className="portal-icon">✦</span><span>作品集</span><small>项目</small></a><a className="portal-link portal-link-contact" href="#" onClick={(event) => { event.preventDefault(); setFriendsOpen(true); }}><span className="portal-icon">☺</span><span>友链</span><small>好友</small></a><a className="portal-link portal-link-resume" href={content.profile.resumeUrl || '#contact'} target={content.profile.resumeUrl ? '_blank' : undefined} rel="noreferrer"><span className="portal-icon">▤</span><span>履历书</span><small>经历</small></a><a className="portal-link portal-link-notes" href="https://fcn9od35aepq.feishu.cn/wiki/R1R3wPuzTioFtNkOnELcUJJLnBh?from=from_copylink" target="_blank" rel="noreferrer"><span className="portal-icon">✎</span><span>知识库</span><small>笔记</small></a><a className="portal-link portal-link-github" href={content.profile.github || 'https://github.com/Jenrimark'} target="_blank" rel="noreferrer"><span className="portal-icon"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></span><span>GitHub</span><small>代码</small></a></nav>
     <div className="home-socials" data-scene="about" hidden={activeScene !== 'about'} aria-label="首页联系方式"><SocialLinks github={content.profile.github || '#'} className="home-socials-row" /></div>

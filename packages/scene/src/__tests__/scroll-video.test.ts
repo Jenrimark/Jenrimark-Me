@@ -5,7 +5,6 @@ import {
   mapScrollTime,
   mapSceneTime,
   needsScrollSeek,
-  smoothProgress,
 } from '../scroll-video.ts';
 
 test('mapScrollTime anchors match timeline endpoints', () => {
@@ -22,10 +21,4 @@ test('needsScrollSeek respects seeking flag and epsilon', () => {
   assert.equal(needsScrollSeek({ currentTime: 10, targetTime: 10.001, seeking: false }), false);
   assert.equal(needsScrollSeek({ currentTime: 10, targetTime: 10.2, seeking: true }), false);
   assert.equal(needsScrollSeek({ currentTime: 10, targetTime: 10.2, seeking: false }), true);
-});
-
-test('smoothProgress snaps near target', () => {
-  assert.equal(smoothProgress(0.5, 0.5), 0.5);
-  const next = smoothProgress(0, 1, 0.22);
-  assert.ok(next > 0 && next < 1);
 });

@@ -1,27 +1,36 @@
-# Local / single-node compose (Phase 2–3 shape)
+# 生产单机部署 compose（与服务器 /opt/jenrimark-me 保持一致）
+# 凭据必须通过同级 .env 注入（JWT_SECRET / ADMIN_USER / ADMIN_PASSWORD），禁止提交默认值。
 services:
-  api:
+  me-web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+      args:
+        API_ORIGIN: http://me-api:8080
+    container_name: jenrimark-me-web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      - NODE_ENV=production
+      - API_ORIGIN=http://me-api:8080
+    depends_on:
+      - me-api
+  me-api:
     build:
       context: ../server
       dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
+    container_name: jenrimark-me-api
+    restart: unless-stopped
+    expose:
+      - "8080"
     environment:
-      PORT: "8080"
-      DATA_DIR: /data
-      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
-      ADMIN_USER: ${ADMIN_USER:-admin}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
-      CONTENT_JSON: /data/content.published.json
+      - PORT=8080
+      - HOST=0.0.0.0
+      - DATA_DIR=/data
+      - JWT_SECRET=${JWT_SECRET:?请在 .env 中设置 JWT_SECRET}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:?请在 .env 中设置 ADMIN_PASSWORD}
     volumes:
-      - ./data:/data
-  web:
-    build:
-      context: ../apps/web
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      API_ORIGIN: http://api:8080
-    depends_on:
-      - api
+      - me-data:/data
+volumes:
+  me-data:

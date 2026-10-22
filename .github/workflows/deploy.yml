@@ -24,5 +24,5 @@ jobs:
             cd /opt/jenrimark-me
             git fetch origin main
             git reset --hard origin/main
-            docker compose -f deploy/docker-compose.yml up -d --build
+            docker compose -p jenrimark-me -f deploy/docker-compose.yml up -d --build
             echo "Deploy OK: $(date -u +%Y-%m-%dT%H:%M:%SZ)"

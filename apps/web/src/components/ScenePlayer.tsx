@@ -117,6 +117,8 @@ export default function ScenePlayer() {
     let scrollTriggerInstance: { progress: number } | null = null;
     let tickFn: ((time: number) => void) | null = null;
     let fallbackRaf = 0;
+    let fallbackTick: (() => void) | null = null;
+    let onVisibility: (() => void) | null = null;
 
     const onPointer = (e: PointerEvent) => {
       if (state.progress >= EYE_END_PROGRESS || !state.duration) return;
@@ -181,9 +183,9 @@ export default function ScenePlayer() {
       }
 
       if (!gsapInstance) {
-        const fallbackTick = () => {
+        fallbackTick = () => {
           render();
-          fallbackRaf = requestAnimationFrame(fallbackTick);
+          fallbackRaf = requestAnimationFrame(fallbackTick!);
         };
         state.inputProgress = readScrollProgress();
         // A4: 仅降级分支（无 ScrollTrigger）才挂被动 scroll 监听；主路径由 ScrollTrigger onUpdate 单一写进度
@@ -192,6 +194,25 @@ export default function ScenePlayer() {
       }
 
       addEventListener('pointermove', onPointer, { passive: true });
+
+      // A7: 标签页隐藏时停掉 ticker/RAF 与 Lenis，回到前台再恢复，避免离屏空转
+      onVisibility = () => {
+        if (document.hidden) {
+          lenisInstance?.stop();
+          if (tickFn && gsapInstance) gsapInstance.ticker.remove(tickFn);
+          if (fallbackRaf) {
+            cancelAnimationFrame(fallbackRaf);
+            fallbackRaf = 0;
+          }
+        } else {
+          if (gsapInstance && tickFn) gsapInstance.ticker.add(tickFn);
+          lenisInstance?.start();
+          if (!gsapInstance && fallbackTick && !fallbackRaf) {
+            fallbackRaf = requestAnimationFrame(fallbackTick);
+          }
+        }
+      };
+      document.addEventListener('visibilitychange', onVisibility);
 
       root.classList.add('is-active');
       setActive(true);
@@ -209,6 +230,7 @@ export default function ScenePlayer() {
       video.removeEventListener('seeked', resumeLatestScrollTarget);
       removeEventListener('pointermove', onPointer);
       removeEventListener('scroll', onScroll);
+      if (onVisibility) document.removeEventListener('visibilitychange', onVisibility);
       if (fallbackRaf) cancelAnimationFrame(fallbackRaf);
       if (tickFn && gsapInstance) gsapInstance.ticker.remove(tickFn);
       window.removeEventListener('portfolio:modal-open', stopLenis);

@@ -68,6 +68,8 @@ export default function ScenePlayer({
     let visibleFrame = -1;
     let frameRequestId = 0;
     let lastRenderAt = 0;
+    // 上一次 transition（滚动方向感知：前进预取下一个、后退预取上一个，避免三连全量预取）
+    let lastTransition = -1;
     let navigating = false;
     let navigationStartProgress = 0;
     let navigationTargetProgress = -1;
@@ -198,9 +200,14 @@ export default function ScenePlayer({
         : rawPageProgress;
       const sceneState = storyTimelineAtPageProgress(pageProgress, manifest, pointer);
       showFrame(sceneState.frame);
-      preloadTransition(sceneState.transition - 1);
-      preloadTransition(sceneState.transition);
-      preloadTransition(sceneState.transition + 1);
+      // 懒加载：只预取当前 transition + 滚动方向的邻接 transition（首帧只取当前）
+      const t = sceneState.transition;
+      preloadTransition(t);
+      if (lastTransition >= 0) {
+        if (t > lastTransition) preloadTransition(t + 1);
+        else if (t < lastTransition) preloadTransition(t - 1);
+      }
+      lastTransition = t;
       root.dataset.state = 'story';
       root.dataset.page = String(sceneState.page);
       root.dataset.pointerX = pointer.x.toFixed(3);
@@ -237,7 +244,6 @@ export default function ScenePlayer({
         });
         showFrame(0);
         preloadTransition(0);
-        preloadTransition(1);
         render();
       })
       .catch(() => undefined);

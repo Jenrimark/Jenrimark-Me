@@ -235,3 +235,34 @@ body.modal-open{overflow:hidden}.content-modal-backdrop{position:fixed;z-index:5
 .friends-modal-list strong{font-size:15px;font-weight:500;letter-spacing:.4px}
 .friends-modal-list small{grid-column:1;color:var(--page-muted);font-size:11px;line-height:1.5}
 .friends-modal-list span{grid-column:2;grid-row:1 / span 2;align-self:center;color:var(--page-gold);font-size:16px}
+
+/* Native scroll is the input source; mandatory snap resolves one gesture to one page. */
+html.scene-snap-enabled{scroll-snap-type:y mandatory;overscroll-behavior-y:none}
+html.scene-snap-enabled .scene-spacer{scroll-snap-align:start;scroll-snap-stop:always}
+html.scene-snap-enabled.story-programmatic-scroll{scroll-snap-type:none;scroll-behavior:auto}
+@media(prefers-reduced-motion:reduce){html.scene-snap-enabled{scroll-snap-type:none}}
+
+/* Mobile keeps the portal as a compact icon rail so it never covers the face or copy. */
+@media(max-width:700px){
+  .portal-dock,
+  .portal-dock:not(.is-expanded),
+  .portal-dock.is-expanded{
+    top:auto;right:auto;bottom:70px;left:50%;
+    display:flex;gap:5px;width:min(360px,calc(100vw - 20px));max-width:none;
+    padding:6px 8px;overflow-x:auto;transform:translateX(-50%);
+    border:1px solid rgba(232,232,217,.18);border-radius:20px;
+    background:rgba(44,37,34,.72);backdrop-filter:blur(14px)
+  }
+  .portal-dock-title{display:none}
+  .portal-dock .portal-link,
+  .portal-dock:not(.is-expanded) .portal-link,
+  .portal-dock.is-expanded .portal-link{
+    display:grid;grid-template-columns:30px;grid-template-rows:30px;
+    width:40px;min-width:40px;height:40px;min-height:40px;padding:4px;
+    border:0;background:transparent;box-shadow:none;transform:none!important
+  }
+  .portal-dock .portal-link span + span,
+  .portal-dock .portal-link small{display:none!important}
+  .portal-dock .portal-icon{width:30px;height:30px;font-size:18px;border-radius:10px}
+  .home-socials{right:50%;bottom:16px;transform:translateX(50%)}
+}

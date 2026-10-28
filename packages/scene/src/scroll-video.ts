@@ -60,3 +60,104 @@ export function mapSceneTime(input: {
 }
 
 export { frameTime };
+
+/* ============ 帧阻尼：输入目标 → 平滑追赶 + 限速 ============ */
+
+const dampClamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
+
+/**
+ * 临界阻尼平滑 + 单帧最大追赶量限制。
+ * 算法移植自 oil-motion（MIT，github.com/oil-oil/oil-motion
+ * assets/interactive-motion.ts 的 smoothDamp），改为 tick 驱动：
+ * 不自带 raf，由调用方每帧 update(dt)。
+ * 限速语义：单帧最多追赶 maxSpeed * smoothTime，target 越远被裁得越近。
+ */
+const smoothDamp = (
+  current: number,
+  target: number,
+  velocity: number,
+  smoothTime: number,
+  maxSpeed: number,
+  deltaTime: number,
+): [number, number] => {
+  const safeTime = Math.max(0.0001, smoothTime);
+  const omega = 2 / safeTime;
+  const x = omega * deltaTime;
+  const decay = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
+  const originalTarget = target;
+  const maxChange = maxSpeed * safeTime;
+  const change = dampClamp(current - target, -maxChange, maxChange);
+  const limitedTarget = current - change;
+  const temp = (velocity + omega * change) * deltaTime;
+  let nextVelocity = (velocity - omega * temp) * decay;
+  let nextPosition = limitedTarget + (change + temp) * decay;
+
+  if ((originalTarget - current > 0) === (nextPosition > originalTarget)) {
+    nextPosition = originalTarget;
+    nextVelocity = 0;
+  }
+  return [nextPosition, nextVelocity];
+};
+
+/** 收敛死区：小于该距离且速度趋零视为到位，避免无限微追 */
+export const DAMPER_SETTLE_EPSILON = 0.002;
+
+export type FrameDamperOptions = {
+  /** 平滑时间（秒）：越小越跟手。默认 0.16 */
+  smoothTime?: number;
+  /** 每秒最大追赶量（单位与 target 相同）。默认 Infinity（不限速） */
+  maxSpeed?: number;
+  /** 减少动态效果时每帧直通 target */
+  reducedMotion?: boolean;
+};
+
+export type FrameDamper = {
+  /** 当前值（每帧 update 后读取） */
+  readonly value: number;
+  /** 是否已收敛到 target */
+  readonly settled: boolean;
+  setTarget(target: number): void;
+  /** 无动画立即到位（模态开关、段切换等场景） */
+  snapTo(target: number): void;
+  /** 推进一帧，返回当前值。dt 单位秒，超过 1/30 按 1/30 计（防跳帧后炸步长） */
+  update(dt: number): number;
+};
+
+export function createFrameDamper(options: FrameDamperOptions = {}): FrameDamper {
+  const smoothTime = Math.max(0.0001, options.smoothTime ?? 0.16);
+  const maxSpeed = Number.isFinite(options.maxSpeed ?? Infinity)
+    ? (options.maxSpeed as number)
+    : Infinity;
+  let position = 0;
+  let target = 0;
+  let velocity = 0;
+
+  return {
+    get value() {
+      return position;
+    },
+    get settled() {
+      return Math.abs(target - position) < DAMPER_SETTLE_EPSILON && Math.abs(velocity) < DAMPER_SETTLE_EPSILON;
+    },
+    setTarget(next: number) {
+      target = next;
+    },
+    snapTo(next: number) {
+      target = next;
+      position = next;
+      velocity = 0;
+    },
+    update(dt: number) {
+      if (options.reducedMotion) {
+        position = target;
+        velocity = 0;
+        return position;
+      }
+      const step = dampClamp(dt, 0, 1 / 30);
+      if (step <= 0) return position;
+      [position, velocity] = smoothDamp(position, target, velocity, smoothTime, maxSpeed, step);
+      return position;
+    },
+  };
+}

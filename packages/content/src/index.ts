@@ -125,6 +125,11 @@ export interface HomeViewModel {
   projects: Project[];
   homeSlots: HomeSlots;
   settings?: SiteSettings;
+  /** 首页场景模式：story 为五页动作叙事，frames/spec 保留旧场景兼容，缺省走 video。 */
+  scene?:
+    | { mode: 'story'; framesDir: string; specUrl: string }
+    | { mode: 'frames'; budgetUrl: string; framesDir: string }
+    | { mode: 'spec'; budgetUrl: string; framesDir: string; specUrl: string };
 }
 
 export interface HomeViewOptions {

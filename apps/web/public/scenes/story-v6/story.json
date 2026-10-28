@@ -1,0 +1,49 @@
+{
+  "schema": "story-timeline/v1",
+  "source": "../../media/formal-v4.mp4",
+  "fps": 24,
+  "duration": 30.048,
+  "totalFrames": 721,
+  "framesDir": "frames/",
+  "extension": ".jpg",
+  "gaze": {
+    "sourceRange": [0, 10],
+    "directTime": 0,
+    "rightTime": 2.5,
+    "upTime": 5,
+    "leftTime": 7.25,
+    "returnTime": 9,
+    "deadZone": 0.08
+  },
+  "pages": ["about", "experience", "projects", "work", "contact"],
+  "transitions": [
+    {
+      "id": "experience",
+      "sourceRange": [10, 12],
+      "holdTime": 13,
+      "playbackDurationMs": 3000,
+      "pacing": [[0, 0], [0.5, 0.25], [1, 1]]
+    },
+    {
+      "id": "projects",
+      "sourceRange": [15, 18],
+      "holdTime": 18,
+      "playbackDurationMs": 3000,
+      "pacing": [[0, 0], [1, 1]]
+    },
+    {
+      "id": "work",
+      "sourceRange": [21.07, 26],
+      "holdTime": 26,
+      "playbackDurationMs": 4000,
+      "pacing": [[0, 0], [0.25, 0.35], [1, 1]]
+    },
+    {
+      "id": "contact",
+      "sourceRange": [26, 29],
+      "holdTime": 29,
+      "playbackDurationMs": 3000,
+      "pacing": [[0, 0], [1, 1]]
+    }
+  ]
+}

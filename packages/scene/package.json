@@ -7,8 +7,10 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./scroll": "./src/scroll-video.ts",
-    "./gaze-math": "./src/gaze-math.ts"
+    "./scroll": "./src/scroll-map.ts",
+    "./scroll-video": "./src/scroll-video.ts",
+    "./gaze-math": "./src/gaze-math.ts",
+    "./story-scroll": "./src/story-scroll.ts"
   },
   "dependencies": {
     "gsap": "^3.13.0",

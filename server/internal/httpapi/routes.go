@@ -66,9 +66,31 @@ func (s *Server) Router() *gin.Engine {
 	}
 
 	r.GET("/api/public/content", s.publicContent)
+	r.GET("/api/public/scenes", s.publicScenes)
 	r.POST("/api/public/metrics/page-view", s.recordPageView)
 	r.POST("/api/public/metrics/project-open", s.recordProjectOpen)
 	return r
+}
+
+// publicScenes 返回站点滚动叙事场景清单（M4/R2）：读取 apps/web/public/scenes/manifest.json。
+// 场景包由工作台导出站点包后一键部署（R2：deploy 端点自动置顶首页场景）；无清单时返回空列表（web 端 video 兜底）。
+// 路径可用环境变量 SCENES_DIR 覆盖（默认为仓库根下 apps/web/public/scenes）。
+func (s *Server) publicScenes(c *gin.Context) {
+	scenesDir := os.Getenv("SCENES_DIR")
+	if scenesDir == "" {
+		scenesDir = filepath.Join("apps", "web", "public", "scenes")
+	}
+	raw, err := os.ReadFile(filepath.Join(scenesDir, "manifest.json"))
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"scenes": []any{}})
+		return
+	}
+	var manifest map[string]any
+	if err := json.Unmarshal(raw, &manifest); err != nil {
+		c.JSON(http.StatusOK, gin.H{"scenes": []any{}})
+		return
+	}
+	c.JSON(http.StatusOK, manifest)
 }
 
 func (s *Server) cors() gin.HandlerFunc {

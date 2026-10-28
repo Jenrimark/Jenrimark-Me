@@ -19,6 +19,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_DEPLOY_KEY }}
+          command_timeout: 30m
           script: |
             set -e
             cd /opt/jenrimark-me

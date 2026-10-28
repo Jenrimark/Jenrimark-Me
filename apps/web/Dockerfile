@@ -8,7 +8,8 @@ COPY pnpm-workspace.yaml package.json ./
 COPY apps/web/package.json apps/web/
 COPY packages/scene/package.json packages/scene/
 COPY packages/content/package.json packages/content/
-RUN pnpm install --filter @jenrimark/web...
+# 依赖层挂载 pnpm store 缓存：未变依赖直接复用，不再重复下载
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --filter @jenrimark/web... --registry=https://registry.npmmirror.com
 COPY . .
 RUN pnpm --filter @jenrimark/web build
 

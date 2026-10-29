@@ -24,6 +24,8 @@ export interface StoryVideoTransitionSpec {
   sourceRange: [number, number];
   forwardSrc: string;
   reverseSrc: string;
+  forwardPoster: string;
+  reversePoster: string;
   playbackDurationMs: number;
   playbackRate: number;
   startBlendMs: number;
@@ -100,6 +102,13 @@ export function storyVideoDirectionFromDelta(
 
 export function storyVideoCanPlayMotion(reducedMotion: boolean): boolean {
   return !reducedMotion;
+}
+
+export function storyVideoPosterForDirection(
+  transition: StoryVideoTransitionSpec,
+  direction: 1 | -1,
+): string {
+  return direction > 0 ? transition.forwardPoster : transition.reversePoster;
 }
 
 export function storyVideoDirectionFromKey(code: string): 1 | -1 | null {

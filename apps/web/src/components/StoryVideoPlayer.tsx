@@ -10,7 +10,7 @@ import {
   storyGazeTime,
   storyVideoDirectionFromDelta,
   storyVideoDirectionFromKey,
-  storyVideoReverseBridge,
+  storyVideoPosterForDirection,
   type StoryVideoEvent,
   type StoryVideoManifest,
   type StoryVideoState,
@@ -56,6 +56,7 @@ export default function StoryVideoPlayer({
     let blendTimer = 0;
     let hiddenTimer = 0;
     let frameRequestId = 0;
+    let videoGeneration = 0;
     let touchStartY = 0;
     let touchHandled = false;
     let heroEnabled = true;
@@ -75,6 +76,11 @@ export default function StoryVideoPlayer({
       }
       return requestId === frameRequestId;
     };
+
+    const waitForNextPaint = () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      });
 
     const publish = () => {
       const page = state.phase === 'idle' ? state.page : state.targetPage;
@@ -103,7 +109,8 @@ export default function StoryVideoPlayer({
       heroEnabled = page === 0;
       const stableFrame = manifest.stableFrames[page];
       const fallbackFrame = sourceTimeToFrame(manifest.gaze.directTime, manifest.fps);
-      await decodeFrame(stableFrame ?? fallbackFrame);
+      const isCurrent = await decodeFrame(stableFrame ?? fallbackFrame);
+      if (isCurrent) await waitForNextPaint();
     };
 
     const preloadTransition = (transition: StoryVideoTransitionSpec, eager: boolean) => {
@@ -130,12 +137,16 @@ export default function StoryVideoPlayer({
     const finishFallback = async () => {
       if (!manifest || !activeTransition) return;
       await showStablePage(state.targetPage);
+      const generation = videoGeneration;
       video.pause();
-      video.removeAttribute('src');
-      video.load();
       video.style.opacity = '0';
       frame.style.opacity = '1';
       dispatch({ type: 'recover' });
+      window.setTimeout(() => {
+        if (generation !== videoGeneration) return;
+        video.removeAttribute('src');
+        video.load();
+      }, 220);
     };
 
     const settle = async () => {
@@ -143,11 +154,17 @@ export default function StoryVideoPlayer({
       window.clearTimeout(canPlayTimer);
       window.clearTimeout(blendTimer);
       await showStablePage(state.targetPage);
+      const generation = videoGeneration;
       video.pause();
       video.style.opacity = '0';
       frame.style.opacity = '1';
       dispatch({ type: 'settled' });
       updateAdjacentPreload(state.page);
+      window.setTimeout(() => {
+        if (generation !== videoGeneration) return;
+        video.removeAttribute('src');
+        video.load();
+      }, 220);
     };
 
     const beginTransition = (direction: 1 | -1) => {
@@ -157,6 +174,7 @@ export default function StoryVideoPlayer({
       dispatch({ type: 'request', direction });
       activeTransition = transition;
       heroEnabled = false;
+      videoGeneration += 1;
 
       const canPlayMotion = storyVideoCanPlayMotion(
         matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -171,10 +189,8 @@ export default function StoryVideoPlayer({
       }
 
       const reverse = direction < 0;
-      const startBridge = reverse
-        ? storyVideoReverseBridge(transition, 'start')
-        : transition.startBridge;
       video.src = reverse ? transition.reverseSrc : transition.forwardSrc;
+      video.poster = storyVideoPosterForDirection(transition, direction);
       video.playbackRate = transition.playbackRate;
       video.currentTime = 0;
       video.load();
@@ -196,7 +212,7 @@ export default function StoryVideoPlayer({
         window.clearTimeout(canPlayTimer);
         dispatch({ type: 'prepared' });
         video.style.opacity = '1';
-        frame.style.opacity = startBridge === 'fade' ? '0' : '1';
+        frame.style.opacity = '1';
         void video.play().catch(fail);
         blendTimer = window.setTimeout(() => {
           if (state.phase === 'blending') dispatch({ type: 'blend-complete' });
@@ -308,6 +324,7 @@ export default function StoryVideoPlayer({
       window.removeEventListener('story:navigate', onNavigate);
       document.removeEventListener('visibilitychange', onVisibility);
       document.documentElement.classList.remove(INPUT_LOCK_CLASS, 'story-video-mode');
+      videoGeneration += 1;
       preloadedVideos.forEach((preloadVideo) => {
         preloadVideo.removeAttribute('src');
         preloadVideo.load();

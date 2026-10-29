@@ -7,6 +7,7 @@ import {
   storyVideoCanPlayMotion,
   storyVideoDirectionFromDelta,
   storyVideoDirectionFromKey,
+  storyVideoPosterForDirection,
   storyVideoPlaybackRate,
   storyVideoReverseBridge,
   type StoryVideoManifest,
@@ -36,6 +37,8 @@ const manifest: StoryVideoManifest = {
       sourceRange: [10, 12],
       forwardSrc: '/media/transitions/action-01-forward.mp4',
       reverseSrc: '/media/transitions/action-01-reverse.mp4',
+      forwardPoster: '/media/transitions/action-01-forward.jpg',
+      reversePoster: '/media/transitions/action-01-reverse.jpg',
       playbackDurationMs: 3000,
       playbackRate: 0.666667,
       startBlendMs: 200,
@@ -48,6 +51,8 @@ const manifest: StoryVideoManifest = {
       sourceRange: [14.5, 18],
       forwardSrc: '/media/transitions/action-02-forward.mp4',
       reverseSrc: '/media/transitions/action-02-reverse.mp4',
+      forwardPoster: '/media/transitions/action-02-forward.jpg',
+      reversePoster: '/media/transitions/action-02-reverse.jpg',
       playbackDurationMs: 3000,
       playbackRate: 1.166667,
       startBlendMs: 200,
@@ -60,6 +65,8 @@ const manifest: StoryVideoManifest = {
       sourceRange: [21.07, 26],
       forwardSrc: '/media/transitions/action-03-forward.mp4',
       reverseSrc: '/media/transitions/action-03-reverse.mp4',
+      forwardPoster: '/media/transitions/action-03-forward.jpg',
+      reversePoster: '/media/transitions/action-03-reverse.jpg',
       playbackDurationMs: 4000,
       playbackRate: 1.239583,
       startBlendMs: 200,
@@ -72,6 +79,8 @@ const manifest: StoryVideoManifest = {
       sourceRange: [26, 29],
       forwardSrc: '/media/transitions/action-04-forward.mp4',
       reverseSrc: '/media/transitions/action-04-reverse.mp4',
+      forwardPoster: '/media/transitions/action-04-forward.jpg',
+      reversePoster: '/media/transitions/action-04-reverse.jpg',
       playbackDurationMs: 3000,
       playbackRate: 1,
       startBlendMs: 200,
@@ -139,6 +148,17 @@ test('reverse bridges mirror forward bridges', () => {
   assert.equal(storyVideoReverseBridge(manifest.transitions[0], 'start'), 'fade');
   assert.equal(storyVideoReverseBridge(manifest.transitions[2], 'start'), 'continuous');
   assert.equal(storyVideoReverseBridge(manifest.transitions[2], 'end'), 'fade');
+});
+
+test('direction chooses the matching decoded first-frame poster', () => {
+  assert.equal(
+    storyVideoPosterForDirection(manifest.transitions[0], 1),
+    '/media/transitions/action-01-forward.jpg',
+  );
+  assert.equal(
+    storyVideoPosterForDirection(manifest.transitions[0], -1),
+    '/media/transitions/action-01-reverse.jpg',
+  );
 });
 
 test('vertical deltas below threshold do not trigger a transition', () => {

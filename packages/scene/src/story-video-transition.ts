@@ -98,6 +98,10 @@ export function storyVideoDirectionFromDelta(
   return delta > 0 ? 1 : -1;
 }
 
+export function storyVideoCanPlayMotion(reducedMotion: boolean): boolean {
+  return !reducedMotion;
+}
+
 export function storyVideoDirectionFromKey(code: string): 1 | -1 | null {
   if (['ArrowDown', 'PageDown', 'Space', 'Numpad2'].includes(code)) return 1;
   if (['ArrowUp', 'PageUp', 'Numpad8'].includes(code)) return -1;

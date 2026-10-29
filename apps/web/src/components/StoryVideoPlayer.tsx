@@ -6,6 +6,7 @@ import {
   reduceStoryVideoState,
   resolveStoryVideoTransition,
   sourceTimeToFrame,
+  storyVideoCanPlayMotion,
   storyGazeTime,
   storyVideoDirectionFromDelta,
   storyVideoDirectionFromKey,
@@ -157,8 +158,10 @@ export default function StoryVideoPlayer({
       activeTransition = transition;
       heroEnabled = false;
 
-      const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reducedMotion) {
+      const canPlayMotion = storyVideoCanPlayMotion(
+        matchMedia('(prefers-reduced-motion: reduce)').matches,
+      );
+      if (!canPlayMotion) {
         void showStablePage(state.targetPage).then(() => {
           dispatch({ type: 'error' });
           dispatch({ type: 'recover' });

@@ -4,6 +4,7 @@ import {
   initialStoryVideoState,
   reduceStoryVideoState,
   resolveStoryVideoTransition,
+  storyVideoCanPlayMotion,
   storyVideoDirectionFromDelta,
   storyVideoDirectionFromKey,
   storyVideoPlaybackRate,
@@ -156,4 +157,9 @@ test('keyboard navigation maps only approved vertical keys', () => {
   assert.equal(storyVideoDirectionFromKey('PageUp'), -1);
   assert.equal(storyVideoDirectionFromKey('Numpad8'), -1);
   assert.equal(storyVideoDirectionFromKey('ArrowLeft'), null);
+});
+
+test('reduced motion disables transition video playback', () => {
+  assert.equal(storyVideoCanPlayMotion(false), true);
+  assert.equal(storyVideoCanPlayMotion(true), false);
 });

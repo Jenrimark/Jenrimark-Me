@@ -18,7 +18,7 @@ const manifest: StoryVideoManifest = {
   fps: 24,
   duration: 30.048,
   totalFrames: 721,
-  framesDir: '/scenes/story-v6/frames/',
+  framesDir: '/scenes/story-v6/gaze-hd/',
   gazeFramesDir: '/scenes/story-v6/gaze-hd/',
   gazeTotalFrames: 241,
   extension: '.webp',

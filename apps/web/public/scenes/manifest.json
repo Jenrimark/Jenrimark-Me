@@ -7,7 +7,7 @@
       "frameCount": 721,
       "duration": 30.048,
       "fps": 24,
-      "framesDir": "frames/",
+      "framesDir": "gaze-hd/",
       "mode": "story",
       "spec": "story-video.json"
     }

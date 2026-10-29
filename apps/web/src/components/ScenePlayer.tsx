@@ -42,7 +42,7 @@ export default function ScenePlayer({
   framesConfig?: { budgetUrl: string; framesDir: string };
   /** R5：spec 模式：budget（帧数）+ 帧目录 + interaction-spec.json（双端动效规格） */
   specConfig?: { budgetUrl: string; framesDir: string; specUrl: string };
-  /** 五页动作叙事：24fps 帧目录 + story.json 页面/动作映射 */
+  /** 五页动作叙事：高清首屏帧 + story-video.json 页面/动作映射 */
   storyConfig?: { framesDir: string; specUrl: string };
 }) {
   const isFrames = mode === 'frames' && !!framesConfig;

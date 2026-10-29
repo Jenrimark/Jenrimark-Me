@@ -81,11 +81,11 @@ apps/web/public/
 └─ scenes/
    ├─ manifest.json             场景注册表
    └─ story-v6/
-      ├─ story.json             秒级时间线与 pacing
-      └─ frames/                24fps JPEG 连续帧
+      ├─ story-video.json       秒级时间线与视频转场映射
+      └─ gaze-hd/               1280×720 WebP 首屏眼神帧
 ```
 
-`story-v6/story.json` 是时间线的唯一真值：
+`story-v6/story-video.json` 是时间线的唯一真值：
 
 - `sourceRange`：动作使用的源视频秒数
 - `holdTime`：页面稳定秒数

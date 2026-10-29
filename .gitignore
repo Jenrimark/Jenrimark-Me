@@ -35,6 +35,7 @@ release/
 docs/
 assets/
 过程资料/
+docs/deprecated/
 
 # 临时压缩包与导出文件
 *.zip

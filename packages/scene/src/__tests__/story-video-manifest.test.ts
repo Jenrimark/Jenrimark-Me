@@ -10,6 +10,8 @@ test('story-video manifest matches the approved timeline and assets', async () =
   );
   const manifest = JSON.parse(raw) as StoryVideoManifest;
   assert.equal(manifest.schema, 'story-video/v1');
+  assert.equal(manifest.gazeFramesDir, '/scenes/story-v6/gaze-hd/');
+  assert.equal(manifest.gazeTotalFrames, 241);
   assert.deepEqual(manifest.stableFrames, [null, 312, 432, 624, 696]);
   assert.deepEqual(manifest.stableImages, [
     '/media/scene-stills/00-about.png',

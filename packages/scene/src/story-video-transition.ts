@@ -40,6 +40,8 @@ export interface StoryVideoManifest {
   duration: number;
   totalFrames: number;
   framesDir: string;
+  gazeFramesDir: string;
+  gazeTotalFrames: number;
   extension: string;
   gaze: StoryVideoGazeSpec;
   pages: string[];

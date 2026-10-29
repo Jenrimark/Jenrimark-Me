@@ -63,9 +63,10 @@ export default function StoryVideoPlayer({
     const preloadedVideos = new Map<string, HTMLVideoElement>();
 
     const frameURL = (frameNumber: number) => {
-      const totalFrames = manifest?.totalFrames ?? 1;
+      const totalFrames = manifest?.gazeTotalFrames ?? 1;
       const safeFrame = Math.max(0, Math.min(totalFrames - 1, Math.round(frameNumber)));
-      return `${framesDir}${String(safeFrame).padStart(6, '0')}${manifest?.extension ?? '.webp'}`;
+      const gazeFramesDir = manifest?.gazeFramesDir ?? framesDir;
+      return `${gazeFramesDir}${String(safeFrame).padStart(6, '0')}${manifest?.extension ?? '.webp'}`;
     };
 
     const decodeFrame = async (frameNumber: number) => {

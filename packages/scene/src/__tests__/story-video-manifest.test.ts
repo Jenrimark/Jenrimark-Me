@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import type { StoryVideoManifest } from '../story-video-transition.ts';
+import { sceneConfigFromRegistry } from '../story-video-transition.ts';
 
 test('story-video manifest matches the approved timeline and assets', async () => {
   const raw = await readFile(
@@ -49,4 +50,19 @@ test('scene registry points story mode at the video manifest', async () => {
   const story = registry.scenes.find((item) => item.id === 'story-v6');
   assert.equal(story?.mode, 'story');
   assert.equal(story?.spec, 'story-video.json');
+});
+
+test('registry resolves story config without a network lookup', async () => {
+  const raw = await readFile(
+    new URL('../../../../apps/web/public/scenes/manifest.json', import.meta.url),
+    'utf8',
+  );
+  const registry = JSON.parse(raw) as {
+    scenes: Array<{ id: string; mode: string; framesDir: string; spec: string }>;
+  };
+  assert.deepEqual(sceneConfigFromRegistry(registry), {
+    mode: 'story',
+    framesDir: '/scenes/story-v6/gaze-hd/',
+    specUrl: '/scenes/story-v6/story-video.json',
+  });
 });

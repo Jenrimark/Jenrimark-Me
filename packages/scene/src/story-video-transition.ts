@@ -50,6 +50,70 @@ export interface StoryVideoManifest {
   transitions: StoryVideoTransitionSpec[];
 }
 
+export interface SceneRegistryManifest {
+  scenes?: Array<{
+    id?: string;
+    budgetUrl?: string;
+    framesDir?: string;
+    mode?: string;
+    spec?: string;
+  }>;
+}
+
+export type RegisteredSceneConfig =
+  | { mode: 'story'; framesDir: string; specUrl: string }
+  | { mode: 'frames'; budgetUrl: string; framesDir: string }
+  | {
+      mode: 'spec';
+      budgetUrl: string;
+      framesDir: string;
+      specUrl: string;
+    };
+
+export function sceneConfigFromRegistry(
+  manifest: SceneRegistryManifest,
+): RegisteredSceneConfig | undefined {
+  const story = manifest.scenes?.find(
+    (item) => item.id && item.framesDir && item.spec && item.mode === 'story',
+  );
+  if (story?.id && story.framesDir && story.spec) {
+    return {
+      mode: 'story',
+      framesDir: `/scenes/${story.id}/${story.framesDir}`,
+      specUrl: `/scenes/${story.id}/${story.spec}`,
+    };
+  }
+
+  const spec = manifest.scenes?.find(
+    (item) =>
+      item.id &&
+      item.budgetUrl &&
+      item.framesDir &&
+      item.spec &&
+      item.mode === 'spec',
+  );
+  if (spec?.id && spec.budgetUrl && spec.framesDir && spec.spec) {
+    return {
+      mode: 'spec',
+      budgetUrl: `/scenes/${spec.id}/${spec.budgetUrl}`,
+      framesDir: `/scenes/${spec.id}/${spec.framesDir}`,
+      specUrl: `/scenes/${spec.id}/${spec.spec}`,
+    };
+  }
+
+  const frames = manifest.scenes?.find(
+    (item) => item.id && item.budgetUrl && item.framesDir,
+  );
+  if (frames?.id && frames.budgetUrl && frames.framesDir) {
+    return {
+      mode: 'frames',
+      budgetUrl: `/scenes/${frames.id}/${frames.budgetUrl}`,
+      framesDir: `/scenes/${frames.id}/${frames.framesDir}`,
+    };
+  }
+  return undefined;
+}
+
 export interface StoryVideoState {
   phase: StoryVideoPhase;
   page: number;

@@ -1,0 +1,70 @@
+{
+  "schema": "story-video/v1",
+  "source": "../../media/formal-v4.mp4",
+  "fps": 24,
+  "duration": 30.048,
+  "totalFrames": 721,
+  "framesDir": "/scenes/story-v6/frames/",
+  "extension": ".webp",
+  "gaze": {
+    "sourceRange": [0, 10],
+    "directTime": 0,
+    "rightTime": 2.5,
+    "upTime": 5,
+    "leftTime": 7.25,
+    "returnTime": 9,
+    "deadZone": 0.08
+  },
+  "pages": ["about", "experience", "projects", "work", "contact"],
+  "stableFrames": [null, 312, 432, 624, 696],
+  "transitions": [
+    {
+      "id": "experience",
+      "sourceRange": [10, 12],
+      "forwardSrc": "/media/transitions/action-01-forward.mp4",
+      "reverseSrc": "/media/transitions/action-01-reverse.mp4",
+      "playbackDurationMs": 3000,
+      "playbackRate": 0.666667,
+      "startBlendMs": 200,
+      "startBridge": "fade",
+      "endBridge": "jump",
+      "endHoldFrame": 312
+    },
+    {
+      "id": "projects",
+      "sourceRange": [14.5, 18],
+      "forwardSrc": "/media/transitions/action-02-forward.mp4",
+      "reverseSrc": "/media/transitions/action-02-reverse.mp4",
+      "playbackDurationMs": 3000,
+      "playbackRate": 1.166667,
+      "startBlendMs": 200,
+      "startBridge": "fade",
+      "endBridge": "continuous",
+      "endHoldFrame": 432
+    },
+    {
+      "id": "work",
+      "sourceRange": [21.07, 26],
+      "forwardSrc": "/media/transitions/action-03-forward.mp4",
+      "reverseSrc": "/media/transitions/action-03-reverse.mp4",
+      "playbackDurationMs": 4000,
+      "playbackRate": 1.239583,
+      "startBlendMs": 200,
+      "startBridge": "fade",
+      "endBridge": "continuous",
+      "endHoldFrame": 624
+    },
+    {
+      "id": "contact",
+      "sourceRange": [26, 29],
+      "forwardSrc": "/media/transitions/action-04-forward.mp4",
+      "reverseSrc": "/media/transitions/action-04-reverse.mp4",
+      "playbackDurationMs": 3000,
+      "playbackRate": 1,
+      "startBlendMs": 200,
+      "startBridge": "continuous",
+      "endBridge": "continuous",
+      "endHoldFrame": 696
+    }
+  ]
+}

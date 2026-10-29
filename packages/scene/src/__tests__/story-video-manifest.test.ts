@@ -11,6 +11,13 @@ test('story-video manifest matches the approved timeline and assets', async () =
   const manifest = JSON.parse(raw) as StoryVideoManifest;
   assert.equal(manifest.schema, 'story-video/v1');
   assert.deepEqual(manifest.stableFrames, [null, 312, 432, 624, 696]);
+  assert.deepEqual(manifest.stableImages, [
+    '/media/scene-stills/00-about.png',
+    '/media/scene-stills/01-experience.png',
+    '/media/scene-stills/02-projects.png',
+    '/media/scene-stills/03-work.png',
+    '/media/scene-stills/04-contact.png',
+  ]);
   assert.deepEqual(
     manifest.transitions.map((item) => item.playbackDurationMs),
     [3000, 3000, 4000, 3000],

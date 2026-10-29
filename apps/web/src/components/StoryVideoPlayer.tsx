@@ -77,6 +77,15 @@ export default function StoryVideoPlayer({
       return requestId === frameRequestId;
     };
 
+    const decodeStableImage = async (source: string) => {
+      const requestId = ++frameRequestId;
+      frame.src = source;
+      if (typeof frame.decode === 'function') {
+        await frame.decode().catch(() => undefined);
+      }
+      return requestId === frameRequestId;
+    };
+
     const waitForNextPaint = () =>
       new Promise<void>((resolve) => {
         requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
@@ -107,9 +116,8 @@ export default function StoryVideoPlayer({
     const showStablePage = async (page: number) => {
       if (!manifest) return;
       heroEnabled = page === 0;
-      const stableFrame = manifest.stableFrames[page];
-      const fallbackFrame = sourceTimeToFrame(manifest.gaze.directTime, manifest.fps);
-      const isCurrent = await decodeFrame(stableFrame ?? fallbackFrame);
+      const stableImage = manifest.stableImages[page];
+      const isCurrent = await decodeStableImage(stableImage);
       if (isCurrent) await waitForNextPaint();
     };
 

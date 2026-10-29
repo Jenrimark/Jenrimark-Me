@@ -44,6 +44,7 @@ export interface StoryVideoManifest {
   gaze: StoryVideoGazeSpec;
   pages: string[];
   stableFrames: Array<number | null>;
+  stableImages: string[];
   transitions: StoryVideoTransitionSpec[];
 }
 

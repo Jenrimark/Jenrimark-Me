@@ -17,6 +17,13 @@
   },
   "pages": ["about", "experience", "projects", "work", "contact"],
   "stableFrames": [null, 312, 432, 624, 696],
+  "stableImages": [
+    "/media/scene-stills/00-about.png",
+    "/media/scene-stills/01-experience.png",
+    "/media/scene-stills/02-projects.png",
+    "/media/scene-stills/03-work.png",
+    "/media/scene-stills/04-contact.png"
+  ],
   "transitions": [
     {
       "id": "experience",

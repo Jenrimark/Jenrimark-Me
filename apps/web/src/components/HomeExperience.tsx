@@ -69,6 +69,8 @@ export default function HomeExperience({ content, trackMetrics = true }: { conte
   const friendsRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<SVGCircleElement>(null);
   const meterValueRef = useRef<HTMLSpanElement>(null);
+  const activeSceneRef = useRef('about');
+  const copyFadeTimerRef = useRef(0);
   const featuredProjects = content.featuredProjects.length ? content.featuredProjects : content.projects.slice(0, 2);
   const miniProjects = content.miniProjects.length ? content.miniProjects : content.projects.slice(2, 6);
   const education = content.education[0];
@@ -122,7 +124,9 @@ export default function HomeExperience({ content, trackMetrics = true }: { conte
       event.preventDefault();
       const storySpacers = Array.from(document.querySelectorAll<HTMLElement>('.scene-spacers .scene-spacer'));
       const storyPageIndex = storySpacers.indexOf(target);
-      if (storyPageIndex >= 0 && document.documentElement.classList.contains('scene-snap-enabled')) {
+      const videoMode = document.documentElement.classList.contains('story-video-mode');
+      const snapMode = document.documentElement.classList.contains('scene-snap-enabled');
+      if (storyPageIndex >= 0 && (snapMode || videoMode)) {
         window.dispatchEvent(new CustomEvent('story:navigate', { detail: { page: storyPageIndex } }));
         history.replaceState(null, '', href);
         return;
@@ -133,7 +137,21 @@ export default function HomeExperience({ content, trackMetrics = true }: { conte
     const anchors = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
     anchors.forEach((anchor) => anchor.addEventListener('click', anchorHandler));
     const applyScene = (id: string) => {
-      setActiveScene(id);
+      if (activeSceneRef.current !== id) {
+        const source = document.querySelector<HTMLElement>('#scene-copy');
+        if (source && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          const leaving = source.cloneNode(true) as HTMLElement;
+          leaving.id = '';
+          leaving.classList.add('scene-copy-clone');
+          leaving.setAttribute('aria-hidden', 'true');
+          source.parentElement?.appendChild(leaving);
+          requestAnimationFrame(() => leaving.classList.add('is-fading'));
+          window.clearTimeout(copyFadeTimerRef.current);
+          copyFadeTimerRef.current = window.setTimeout(() => leaving.remove(), 220);
+        }
+        activeSceneRef.current = id;
+        setActiveScene(id);
+      }
       document.querySelector('#portal-dock')?.classList.toggle('is-expanded', id === 'about' || id === 'contact');
       document.querySelector('.site-footer')?.classList.toggle('is-visible', id === 'contact');
     };
@@ -149,7 +167,7 @@ export default function HomeExperience({ content, trackMetrics = true }: { conte
       }
     };
     const progressHandler = (event: Event) => {
-      const detail = (event as CustomEvent<{ progress: number; time: number; page?: number }>).detail;
+      const detail = (event as CustomEvent<{ progress: number; time: number; page?: number; phase?: string }>).detail;
       const scene = typeof detail.page === 'number' ? SCENES[detail.page] : SCENES.find((item) => detail.time >= item.start && detail.time < item.end);
       applyScene(scene?.id || 'contact');
       update(detail.progress);
@@ -162,6 +180,7 @@ export default function HomeExperience({ content, trackMetrics = true }: { conte
       observer.disconnect();
       anchors.forEach((anchor) => anchor.removeEventListener('click', anchorHandler));
       document.removeEventListener('v4sceneprogress', progressHandler);
+      window.clearTimeout(copyFadeTimerRef.current);
     };
   }, [trackMetrics]);
 

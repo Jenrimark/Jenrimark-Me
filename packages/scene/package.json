@@ -10,7 +10,8 @@
     "./scroll": "./src/scroll-map.ts",
     "./scroll-video": "./src/scroll-video.ts",
     "./gaze-math": "./src/gaze-math.ts",
-    "./story-scroll": "./src/story-scroll.ts"
+    "./story-scroll": "./src/story-scroll.ts",
+    "./story-video-transition": "./src/story-video-transition.ts"
   },
   "dependencies": {
     "gsap": "^3.13.0",

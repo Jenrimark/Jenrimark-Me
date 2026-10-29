@@ -160,8 +160,8 @@ test('error recovery locks the page and discards pending requests', () => {
 });
 
 test('playback rates map source duration to page duration', () => {
-  assert.equal(storyVideoPlaybackRate(2, 3000), 2 / 3);
-  assert.equal(storyVideoPlaybackRate(3.5, 3000), 3.5 / 3);
+  assert.equal(storyVideoPlaybackRate(2, 3000), 0.666667);
+  assert.equal(storyVideoPlaybackRate(3.5, 3000), 1.166667);
   assert.equal(storyVideoPlaybackRate(4.958333, 4000), 1.239583);
   assert.equal(storyVideoPlaybackRate(3, 3000), 1);
 });

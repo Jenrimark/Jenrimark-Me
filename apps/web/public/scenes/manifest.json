@@ -3,13 +3,13 @@
   "scenes": [
     {
       "id": "story-v6",
-      "title": "秒级五页动作叙事",
+      "title": "五页动作视频叙事",
       "frameCount": 721,
       "duration": 30.048,
       "fps": 24,
       "framesDir": "frames/",
       "mode": "story",
-      "spec": "story.json"
+      "spec": "story-video.json"
     }
   ]
 }

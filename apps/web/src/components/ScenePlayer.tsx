@@ -20,6 +20,7 @@ import {
   type StoryTimelineManifest,
 } from '@jenrimark/scene';
 import { frameAtProgress, type SceneBudget } from '@jenrimark/scene/scroll';
+import StoryVideoPlayer from './StoryVideoPlayer';
 
 type SceneProgressDetail = {
   progress: number;
@@ -53,9 +54,9 @@ export default function ScenePlayer({
   const imgRef = useRef<HTMLImageElement>(null);
   const [active, setActive] = useState(false);
 
-  /* ============ story 模式：五页吸附 + 四段完整动作播放/倒放 ============ */
+  /* ============ story 模式：由 StoryVideoPlayer 独立接管 ============ */
   useEffect(() => {
-    if (!isStory || !storyConfig) return;
+    if (isStory || !storyConfig) return;
     const root = rootRef.current;
     const img = imgRef.current;
     const scrollRoot = document.querySelector<HTMLElement>('#scene-scroll');
@@ -891,7 +892,7 @@ export default function ScenePlayer({
 
   /* ============ video 模式（默认，行为不变） ============ */
   useEffect(() => {
-    if (isFrames || isSpec || isStory) return;
+    if (isFrames || isSpec) return;
     const root = rootRef.current;
     const video = videoRef.current;
     const scrollRoot = document.querySelector<HTMLElement>('#scene-scroll');
@@ -1119,7 +1120,11 @@ export default function ScenePlayer({
       lenisInstance?.destroy();
       void rafId;
     };
-  }, [isFrames, isSpec, isStory]);
+  }, [isFrames, isSpec]);
+
+  if (isStory && storyConfig) {
+    return <StoryVideoPlayer framesDir={storyConfig.framesDir} specUrl={storyConfig.specUrl} />;
+  }
 
   return (
     <div
@@ -1129,7 +1134,7 @@ export default function ScenePlayer({
       ref={rootRef}
     >
       <div className="v3-scene-frame">
-        {isFrames || isSpec || isStory ? (
+        {isFrames || isSpec ? (
           <img
             id="v3-scene-frames"
             className="v3-scene-video"

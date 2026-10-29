@@ -28,3 +28,16 @@ test('story-video manifest matches the approved timeline and assets', async () =
     assert.ok(item.reverseSrc.startsWith('/media/transitions/'));
   });
 });
+
+test('scene registry points story mode at the video manifest', async () => {
+  const raw = await readFile(
+    new URL('../../../../apps/web/public/scenes/manifest.json', import.meta.url),
+    'utf8',
+  );
+  const registry = JSON.parse(raw) as {
+    scenes: Array<{ id: string; mode: string; spec: string }>;
+  };
+  const story = registry.scenes.find((item) => item.id === 'story-v6');
+  assert.equal(story?.mode, 'story');
+  assert.equal(story?.spec, 'story-video.json');
+});

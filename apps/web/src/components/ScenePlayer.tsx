@@ -892,7 +892,7 @@ export default function ScenePlayer({
 
   /* ============ video 模式（默认，行为不变） ============ */
   useEffect(() => {
-    if (isFrames || isSpec) return;
+    if (isFrames || isSpec || isStory) return;
     const root = rootRef.current;
     const video = videoRef.current;
     const scrollRoot = document.querySelector<HTMLElement>('#scene-scroll');
@@ -1120,7 +1120,7 @@ export default function ScenePlayer({
       lenisInstance?.destroy();
       void rafId;
     };
-  }, [isFrames, isSpec]);
+  }, [isFrames, isSpec, isStory]);
 
   if (isStory && storyConfig) {
     return <StoryVideoPlayer framesDir={storyConfig.framesDir} specUrl={storyConfig.specUrl} />;

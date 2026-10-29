@@ -1,4 +1,6 @@
-export type StoryVideoBridge = 'fade' | 'continuous';
+export type StoryVideoStartBridge = 'fade' | 'continuous';
+export type StoryVideoEndBridge = StoryVideoStartBridge | 'jump';
+export type StoryVideoBridge = StoryVideoStartBridge;
 export type StoryVideoPhase =
   | 'idle'
   | 'preparing'
@@ -25,8 +27,8 @@ export interface StoryVideoTransitionSpec {
   playbackDurationMs: number;
   playbackRate: number;
   startBlendMs: number;
-  startBridge: StoryVideoBridge;
-  endBridge: StoryVideoBridge;
+  startBridge: StoryVideoStartBridge;
+  endBridge: StoryVideoEndBridge;
   endHoldFrame: number;
 }
 
@@ -86,6 +88,20 @@ export function storyVideoPlaybackRate(
   const sourceDuration = Math.max(0, sourceDurationSeconds);
   const playbackSeconds = Math.max(0.001, playbackDurationMs / 1000);
   return Number((sourceDuration / playbackSeconds).toFixed(6));
+}
+
+export function storyVideoDirectionFromDelta(
+  delta: number,
+  threshold: number,
+): 1 | -1 | null {
+  if (!Number.isFinite(delta) || Math.abs(delta) < threshold) return null;
+  return delta > 0 ? 1 : -1;
+}
+
+export function storyVideoDirectionFromKey(code: string): 1 | -1 | null {
+  if (['ArrowDown', 'PageDown', 'Space', 'Numpad2'].includes(code)) return 1;
+  if (['ArrowUp', 'PageUp', 'Numpad8'].includes(code)) return -1;
+  return null;
 }
 
 export function storyVideoReverseBridge(

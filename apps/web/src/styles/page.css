@@ -242,6 +242,13 @@ html.scene-snap-enabled .scene-spacer{scroll-snap-align:start;scroll-snap-stop:a
 html.scene-snap-enabled.story-programmatic-scroll{scroll-snap-type:none;scroll-behavior:auto}
 @media(prefers-reduced-motion:reduce){html.scene-snap-enabled{scroll-snap-type:none}}
 
+.story-video-scene .scene-stable-frame,.story-video-scene .scene-transition-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 200ms ease}
+.story-video-scene .scene-transition-video{opacity:0;pointer-events:none}
+html.story-video-mode{overflow:hidden;touch-action:none}
+html.story-video-mode .scene-spacer{height:100svh}
+html.story-video-locked{cursor:progress}
+@media(prefers-reduced-motion:reduce){.story-video-scene .scene-stable-frame,.story-video-scene .scene-transition-video{transition:none}}
+
 /* Mobile keeps the portal as a compact icon rail so it never covers the face or copy. */
 @media(max-width:700px){
   .portal-dock,

@@ -4,6 +4,8 @@ import {
   initialStoryVideoState,
   reduceStoryVideoState,
   resolveStoryVideoTransition,
+  storyVideoDirectionFromDelta,
+  storyVideoDirectionFromKey,
   storyVideoPlaybackRate,
   storyVideoReverseBridge,
   type StoryVideoManifest,
@@ -136,4 +138,22 @@ test('reverse bridges mirror forward bridges', () => {
   assert.equal(storyVideoReverseBridge(manifest.transitions[0], 'start'), 'fade');
   assert.equal(storyVideoReverseBridge(manifest.transitions[2], 'start'), 'continuous');
   assert.equal(storyVideoReverseBridge(manifest.transitions[2], 'end'), 'fade');
+});
+
+test('vertical deltas below threshold do not trigger a transition', () => {
+  assert.equal(storyVideoDirectionFromDelta(17, 18), null);
+  assert.equal(storyVideoDirectionFromDelta(-17, 18), null);
+  assert.equal(storyVideoDirectionFromDelta(18, 18), 1);
+  assert.equal(storyVideoDirectionFromDelta(-18, 18), -1);
+});
+
+test('keyboard navigation maps only approved vertical keys', () => {
+  assert.equal(storyVideoDirectionFromKey('ArrowDown'), 1);
+  assert.equal(storyVideoDirectionFromKey('PageDown'), 1);
+  assert.equal(storyVideoDirectionFromKey('Space'), 1);
+  assert.equal(storyVideoDirectionFromKey('Numpad2'), 1);
+  assert.equal(storyVideoDirectionFromKey('ArrowUp'), -1);
+  assert.equal(storyVideoDirectionFromKey('PageUp'), -1);
+  assert.equal(storyVideoDirectionFromKey('Numpad8'), -1);
+  assert.equal(storyVideoDirectionFromKey('ArrowLeft'), null);
 });

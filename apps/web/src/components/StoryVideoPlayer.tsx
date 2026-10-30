@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import {
+  createGazeFrameCache,
   initialStoryVideoState,
   reduceStoryVideoState,
   resolveStoryVideoTransition,
@@ -60,6 +61,12 @@ export default function StoryVideoPlayer({
     let touchStartY = 0;
     let touchHandled = false;
     let heroEnabled = true;
+    type GazeImage = { src: string; image: HTMLImageElement };
+    let gazeCache: ReturnType<typeof createGazeFrameCache<Blob, GazeImage>> | null = null;
+    let gazeTarget = -1;
+    let visibleGaze = -1;
+    let gazeRaf = 0;
+    let gazeWarmTimer = 0;
     const preloadedVideos = new Map<string, HTMLVideoElement>();
 
     const frameURL = (frameNumber: number) => {
@@ -69,13 +76,19 @@ export default function StoryVideoPlayer({
       return `${gazeFramesDir}${String(safeFrame).padStart(6, '0')}${manifest?.extension ?? '.webp'}`;
     };
 
-    const decodeFrame = async (frameNumber: number) => {
-      const requestId = ++frameRequestId;
-      frame.src = frameURL(frameNumber);
-      if (typeof frame.decode === 'function') {
-        await frame.decode().catch(() => undefined);
-      }
-      return requestId === frameRequestId;
+    const scheduleGazeRender = () => {
+      if (gazeRaf || disposed) return;
+      gazeRaf = requestAnimationFrame(() => {
+        gazeRaf = 0;
+        if (disposed || !heroEnabled || state.phase !== 'idle' || state.page !== 0) return;
+        const ready = gazeCache?.peek(gazeTarget);
+        if (!ready || gazeTarget === visibleGaze) return;
+        frameRequestId += 1;
+        frame.src = ready.src;
+        visibleGaze = gazeTarget;
+        gazeCache?.setVisible(visibleGaze);
+        root.dataset.gazeFrame = String(visibleGaze);
+      });
     };
 
     const decodeStableImage = async (source: string) => {
@@ -112,14 +125,17 @@ export default function StoryVideoPlayer({
       state = reduceStoryVideoState(state, event, manifest);
       document.documentElement.classList.toggle(INPUT_LOCK_CLASS, state.phase !== 'idle');
       publish();
+      if (state.phase === 'idle' && state.page === 0) scheduleGazeRender();
     };
 
     const showStablePage = async (page: number) => {
       if (!manifest) return;
       heroEnabled = page === 0;
+      visibleGaze = -1;
       const stableImage = manifest.stableImages[page];
       const isCurrent = await decodeStableImage(stableImage);
       if (isCurrent) await waitForNextPaint();
+      if (isCurrent && page === 0) scheduleGazeRender();
     };
 
     const preloadTransition = (transition: StoryVideoTransitionSpec, eager: boolean) => {
@@ -275,7 +291,11 @@ export default function StoryVideoPlayer({
         x: Math.max(0, Math.min(1, event.clientX / innerWidth)),
         y: Math.max(0, Math.min(1, event.clientY / innerHeight)),
       };
-      void decodeFrame(sourceTimeToFrame(storyGazeTime(pointer, manifest.gaze), manifest.fps));
+      const nextFrame = sourceTimeToFrame(storyGazeTime(pointer, manifest.gaze), manifest.fps);
+      if (nextFrame === gazeTarget) return;
+      gazeTarget = nextFrame;
+      gazeCache?.request(gazeTarget);
+      scheduleGazeRender();
     };
 
     const onNavigate = (event: Event) => {
@@ -309,6 +329,46 @@ export default function StoryVideoPlayer({
         await showStablePage(0);
         publish();
         updateAdjacentPreload(0);
+        if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+          gazeCache = createGazeFrameCache({
+            totalFrames: manifest.gazeTotalFrames,
+            priorityFrames: [
+              manifest.gaze.directTime, manifest.gaze.rightTime, manifest.gaze.upTime,
+              manifest.gaze.leftTime, manifest.gaze.returnTime,
+            ].map((time) => sourceTimeToFrame(time, value.fps)),
+            fetchFrame: async (frameNumber, signal) => {
+              const response = await fetch(frameURL(frameNumber), { signal, cache: 'force-cache' });
+              if (!response.ok) throw new Error(`Gaze frame ${frameNumber}: ${response.status}`);
+              return response.blob();
+            },
+            decodeFrame: async (_frameNumber, blob) => {
+              const src = URL.createObjectURL(blob);
+              const image = new Image();
+              image.decoding = 'async';
+              image.src = src;
+              try {
+                await image.decode();
+                return { src, image };
+              } catch (error) {
+                URL.revokeObjectURL(src);
+                throw error;
+              }
+            },
+            releaseFrame: ({ src, image }) => {
+              image.removeAttribute('src');
+              URL.revokeObjectURL(src);
+            },
+            onReady: scheduleGazeRender,
+            onProgress: (stats) => {
+              root.dataset.gazeLoaded = String(stats.loaded);
+              root.dataset.gazeDecoded = String(stats.decoded);
+              root.dataset.gazeFailed = String(stats.failed);
+            },
+          });
+          gazeTarget = sourceTimeToFrame(manifest.gaze.directTime, manifest.fps);
+          gazeCache.request(gazeTarget);
+          gazeWarmTimer = window.setTimeout(() => gazeCache?.warm(), 500);
+        }
       })
       .catch(() => undefined);
 
@@ -325,6 +385,9 @@ export default function StoryVideoPlayer({
       window.clearTimeout(canPlayTimer);
       window.clearTimeout(blendTimer);
       window.clearTimeout(hiddenTimer);
+      window.clearTimeout(gazeWarmTimer);
+      cancelAnimationFrame(gazeRaf);
+      gazeCache?.dispose();
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);

@@ -14,6 +14,7 @@ services:
     environment:
       - NODE_ENV=production
       - API_ORIGIN=http://me-api:8080
+      - SCENE_ASSET_ORIGIN=${SCENE_ASSET_ORIGIN:-}
     depends_on:
       - me-api
   me-api:

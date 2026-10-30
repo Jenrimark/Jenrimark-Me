@@ -68,6 +68,7 @@ export default function StoryVideoPlayer({
     let gazeRaf = 0;
     let gazeWarmTimer = 0;
     const preloadedVideos = new Map<string, HTMLVideoElement>();
+    const manifestAbort = new AbortController();
 
     const frameURL = (frameNumber: number) => {
       const totalFrames = manifest?.gazeTotalFrames ?? 1;
@@ -320,13 +321,14 @@ export default function StoryVideoPlayer({
       }
     };
 
-    void fetch(specUrl)
+    void fetch(specUrl, { signal: manifestAbort.signal })
       .then((response) => response.json())
       .then(async (value: StoryVideoManifest) => {
         if (disposed) return;
-        manifest = value;
+        manifest = { ...value, gazeFramesDir: framesDir };
         document.documentElement.classList.add('story-video-mode');
         await showStablePage(0);
+        if (disposed) return;
         publish();
         updateAdjacentPreload(0);
         if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
@@ -365,7 +367,7 @@ export default function StoryVideoPlayer({
               root.dataset.gazeFailed = String(stats.failed);
             },
           });
-          gazeTarget = sourceTimeToFrame(manifest.gaze.directTime, manifest.fps);
+          if (gazeTarget < 0) gazeTarget = sourceTimeToFrame(manifest.gaze.directTime, manifest.fps);
           gazeCache.request(gazeTarget);
           gazeWarmTimer = window.setTimeout(() => gazeCache?.warm(), 500);
         }
@@ -382,6 +384,7 @@ export default function StoryVideoPlayer({
 
     return () => {
       disposed = true;
+      manifestAbort.abort();
       window.clearTimeout(canPlayTimer);
       window.clearTimeout(blendTimer);
       window.clearTimeout(hiddenTimer);

@@ -101,6 +101,7 @@ export function createGazeFrameCache<Encoded, Decoded>(
         .then(() => options.decodeFrame(frame, data!))
         .then((image) => {
           if (disposed) { options.releaseFrame(image); return; }
+          decodeAttempts.delete(frame);
           decoded.set(frame, image);
           trimDecoded();
           if (decoded.has(frame)) options.onReady?.(frame);

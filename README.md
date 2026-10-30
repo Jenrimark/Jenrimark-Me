@@ -69,6 +69,14 @@ go run ./cmd/server
 - 右下区域：从直视过渡到向右
 - 正下方：回到直视
 
+### 眼神帧加载与缓存
+
+鼠标事件只更新目标帧，已经下载的压缩图片会复用；离屏解码与显示分离，浏览器绘制时切换准备好的图片。下载并发最多 4 个，解码并发最多 2 个，解码缓存最多 24 帧。仅支持鼠标悬停的设备后台预取整套眼神帧，触屏设备不预取。
+
+眼神图片目录包含内容摘要，响应采用一年不可变缓存。更新图片时必须生成新的内容版本目录并同步更新两个场景清单。`SCENE_ASSET_ORIGIN` 可设置独立的 HTTPS 资源源站；未设置时使用网站自身源站，场景 JSON 始终从网站读取。
+
+`apps/web/scripts/verify-gaze.mjs` 使用 Playwright 验证慢网跟随、原图摘要、缓存响应、返回首屏及触屏预取策略。可通过 `PLAYWRIGHT_MODULE` 指定已有 Playwright 模块，通过 `CHROME_PATH` 指定浏览器，并使用 `GAZE_NETWORK_DELAY_MS=150` 模拟图片下载延迟。
+
 ---
 
 ## 场景资产
@@ -82,7 +90,7 @@ apps/web/public/
    ├─ manifest.json             场景注册表
    └─ story-v6/
       ├─ story-video.json       秒级时间线与视频转场映射
-      └─ gaze-hd/               1280×720 WebP 首屏眼神帧
+      └─ gaze-hd-59f6a6426bd8/  1280×720 WebP 首屏眼神帧
 ```
 
 `story-v6/story-video.json` 是时间线的唯一真值：

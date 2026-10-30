@@ -199,6 +199,30 @@ test('neighbor prefetch never exceeds the decode concurrency budget', async () =
   cache.dispose();
 });
 
+test('successful LRU redecodes do not consume a later transient-error retry', async () => {
+  let zeroDecodes = 0;
+  const cache = createGazeFrameCache({
+    totalFrames: 5,
+    prefetchRadius: 0,
+    priorityFrames: [],
+    maxDecodedFrames: 2,
+    fetchFrame: async (frame) => frame,
+    decodeFrame: async (frame) => {
+      if (frame === 0 && ++zeroDecodes === 3) throw new Error('temporary decode failure');
+      return frame;
+    },
+    releaseFrame: () => {},
+  });
+  for (const frame of [0, 1, 2, 0, 3, 4, 0]) {
+    cache.request(frame);
+    await flush();
+  }
+  assert.equal(zeroDecodes, 4);
+  assert.equal(cache.peek(0), 0);
+  assert.equal(cache.stats().failed, 0);
+  cache.dispose();
+});
+
 test('disposing aborts downloads and releases late decode results', async () => {
   const gate = deferred<{ frame: number }>();
   const released: number[] = [];

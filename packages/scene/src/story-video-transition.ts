@@ -72,14 +72,16 @@ export type RegisteredSceneConfig =
 
 export function sceneConfigFromRegistry(
   manifest: SceneRegistryManifest,
+  assetOrigin?: string,
 ): RegisteredSceneConfig | undefined {
   const story = manifest.scenes?.find(
     (item) => item.id && item.framesDir && item.spec && item.mode === 'story',
   );
   if (story?.id && story.framesDir && story.spec) {
+    const framesDir = `/scenes/${story.id}/${story.framesDir}`;
     return {
       mode: 'story',
-      framesDir: `/scenes/${story.id}/${story.framesDir}`,
+      framesDir: assetOrigin ? new URL(framesDir, assetOrigin).href : framesDir,
       specUrl: `/scenes/${story.id}/${story.spec}`,
     };
   }

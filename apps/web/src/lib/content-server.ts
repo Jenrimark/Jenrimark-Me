@@ -19,6 +19,6 @@ export async function loadHomeViewModel(): Promise<HomeViewModel> {
   })();
 
   const vm = await base;
-  const scene = sceneConfigFromRegistry(sceneManifest);
+  const scene = sceneConfigFromRegistry(sceneManifest, process.env.SCENE_ASSET_ORIGIN || undefined);
   return scene ? { ...vm, scene } : vm;
 }

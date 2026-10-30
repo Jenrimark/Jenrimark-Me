@@ -4,12 +4,15 @@
   "fps": 24,
   "duration": 30.048,
   "totalFrames": 721,
-  "framesDir": "/scenes/story-v6/gaze-hd/",
-  "gazeFramesDir": "/scenes/story-v6/gaze-hd/",
+  "framesDir": "/scenes/story-v6/gaze-hd-59f6a6426bd8/",
+  "gazeFramesDir": "/scenes/story-v6/gaze-hd-59f6a6426bd8/",
   "gazeTotalFrames": 241,
   "extension": ".webp",
   "gaze": {
-    "sourceRange": [0, 10],
+    "sourceRange": [
+      0,
+      10
+    ],
     "directTime": 0,
     "rightTime": 2.5,
     "upTime": 5,
@@ -17,8 +20,20 @@
     "returnTime": 9,
     "deadZone": 0.08
   },
-  "pages": ["about", "experience", "projects", "work", "contact"],
-  "stableFrames": [null, 312, 432, 624, 696],
+  "pages": [
+    "about",
+    "experience",
+    "projects",
+    "work",
+    "contact"
+  ],
+  "stableFrames": [
+    null,
+    312,
+    432,
+    624,
+    696
+  ],
   "stableImages": [
     "/media/scene-stills/00-about.png",
     "/media/scene-stills/01-experience.png",
@@ -29,7 +44,10 @@
   "transitions": [
     {
       "id": "experience",
-      "sourceRange": [10, 12],
+      "sourceRange": [
+        10,
+        12
+      ],
       "forwardSrc": "/media/transitions/action-01-forward.mp4",
       "reverseSrc": "/media/transitions/action-01-reverse.mp4",
       "forwardPoster": "/media/transitions/action-01-forward.jpg",
@@ -43,7 +61,10 @@
     },
     {
       "id": "projects",
-      "sourceRange": [14.5, 18],
+      "sourceRange": [
+        14.5,
+        18
+      ],
       "forwardSrc": "/media/transitions/action-02-forward.mp4",
       "reverseSrc": "/media/transitions/action-02-reverse.mp4",
       "forwardPoster": "/media/transitions/action-02-forward.jpg",
@@ -57,7 +78,10 @@
     },
     {
       "id": "work",
-      "sourceRange": [21.07, 26],
+      "sourceRange": [
+        21.07,
+        26
+      ],
       "forwardSrc": "/media/transitions/action-03-forward.mp4",
       "reverseSrc": "/media/transitions/action-03-reverse.mp4",
       "forwardPoster": "/media/transitions/action-03-forward.jpg",
@@ -71,7 +95,10 @@
     },
     {
       "id": "contact",
-      "sourceRange": [26, 29],
+      "sourceRange": [
+        26,
+        29
+      ],
       "forwardSrc": "/media/transitions/action-04-forward.mp4",
       "reverseSrc": "/media/transitions/action-04-reverse.mp4",
       "forwardPoster": "/media/transitions/action-04-forward.jpg",
